@@ -1,0 +1,5 @@
+@model DemandCard
+@{ViewData["Title"]="Đồng hành tại "+Model.Destination;}
+<section class="section narrow"><a class="muted" href="/Community">← Tìm đồng hành</a><article class="panel"><partial name="_DemandContent" model="Model"/>
+@if(Model.CanConnect){<form asp-action="Connect" method="post"><input type="hidden" name="id" value="@Model.Id"/><label>Lời giới thiệu ngắn<textarea name="message" maxlength="1000" placeholder="Sở thích và mong muốn của bạn…"></textarea></label><button class="button">Gửi đề nghị kết nối ↗</button></form>}else if(User.Identity?.IsAuthenticated!=true){<a class="button" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@("/Community/Details/"+Model.Id)">Đăng nhập để kết nối ↗</a>}else if(User.IsInRole("Traveler")){<a class="secondary" href="/Community/Dashboard">Xem kết nối / nhu cầu của tôi →</a>}else{<p class="muted">Kết nối đồng hành dành cho tài khoản khách du lịch.</p>}</article></section>
+

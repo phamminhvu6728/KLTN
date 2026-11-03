@@ -1,0 +1,924 @@
+Đặc tả Use Case – Nhóm 3
+01/11/2026 · Phiên bản 04 – Định nghĩa lại BUC13 và bổ sung SUC13.01
+1. Giới thiệu
+Tài liệu đặc tả 18 System Use Case (SUC) của Hệ thống hỗ trợ khách du lịch tự túc, với 3 Actor (ACT01, ACT02, ACT03). Nội dung được đối chiếu với bản phân tích SUC V04 và 14 BUC. Admin có các nhiệm vụ: xác minh nhà cung cấp, xét duyệt thông tin dịch vụ và (từ V04) quản lý quyền hoạt động của nhà cung cấp. Những điều kiện, trạng thái bổ sung ở bước đặc tả chỉ được coi là phương án để nhóm đồng bộ vào BUC/FR, không tự nhận là kết quả khảo sát.
+BUC13 được định nghĩa lại thành “Quản lý quyền hoạt động của nhà cung cấp” (SUC13.01): Admin tạm đình chỉ, khôi phục hoặc thu hồi quyền hoạt động của nhà cung cấp đã xác minh. Nội dung cũ về phân quyền đại diện giữa nhiều tài khoản bị loại khỏi phạm vi; mỗi nhà cung cấp dùng một tài khoản. Đây là phương án nhóm tự xây dựng, cần cập nhật BUC13 và FR tương ứng. Các quyết định chưa có căn cứ BUC/FR được ghi tại “Điểm cần chốt”.
+1.1. Actor
+Mã
+Actor
+Vai trò trong hệ thống
+ACT01
+Khách du lịch tự túc
+Tìm thông tin, lập kế hoạch, tìm và kết nối người đồng hành, đặt/thay đổi dịch vụ, xử lý tình huống phát sinh, quản lý tài khoản cá nhân.
+ACT02
+Nhà cung cấp dịch vụ
+Đăng ký và cung cấp thông tin để được xác minh; quản lý thông tin dịch vụ; xử lý yêu cầu sử dụng; ghi nhận kết quả cung cấp dịch vụ.
+ACT03
+Quản trị viên (Admin)
+Xác minh nhà cung cấp dịch vụ; xét duyệt thông tin dịch vụ được gửi đăng hoặc cập nhật; quản lý quyền hoạt động của nhà cung cấp (tạm đình chỉ, khôi phục, thu hồi).
+1.2. Danh mục SUC được đặc tả
+Mã
+Tên SUC
+Actor chính
+Actor tham gia
+BUC nguồn
+SUC01.01
+Tìm kiếm thông tin du lịch
+ACT01
+—
+BUC01
+SUC02.01
+Lập kế hoạch chuyến đi
+ACT01
+—
+BUC02
+SUC03.01
+Tìm kiếm người đồng hành
+ACT01
+—
+BUC03
+SUC03.02
+Công bố nhu cầu tìm người đồng hành
+ACT01
+—
+BUC03
+SUC04.01
+Kết nối người đồng hành
+ACT01 (người đề nghị)
+ACT01 (người nhận)
+BUC04
+SUC04.02
+Quản lý thỏa thuận đồng hành
+ACT01
+ACT01 (bên còn lại)
+BUC04
+SUC05.01
+Hỗ trợ xử lý tình huống phát sinh
+ACT01
+—
+BUC05
+SUC06.01
+Quản lý thông tin dịch vụ
+ACT02
+—
+BUC06
+SUC06.02
+Xét duyệt thông tin dịch vụ
+ACT03
+—
+BUC06 + nhóm chốt
+SUC07.01
+Đặt dịch vụ du lịch
+ACT01
+ACT02
+BUC07
+SUC08.01
+Yêu cầu thay đổi hoặc hủy dịch vụ
+ACT01
+ACT02
+BUC08
+SUC09.01
+Ghi nhận kết quả cung cấp dịch vụ
+ACT02
+ACT01
+BUC09
+SUC10.01
+Đăng ký tài khoản
+ACT01, ACT02
+—
+BUC10
+SUC10.02
+Xác minh nhà cung cấp dịch vụ
+ACT03
+ACT02 (bổ sung hồ sơ theo yêu cầu)
+BUC10 + nhóm chốt
+SUC11.01
+Đăng nhập
+ACT01, ACT02, ACT03
+—
+BUC11
+SUC12.01
+Cập nhật hồ sơ người dùng
+ACT01, ACT02
+—
+BUC12
+SUC13.01
+Quản lý quyền hoạt động của nhà cung cấp
+ACT03
+ACT02 (gửi giải trình)
+BUC13 (định nghĩa lại)
+SUC14.01
+Ngừng sử dụng tài khoản
+ACT01, ACT02
+—
+BUC14
+1.3. Mẫu đặc tả
+Mỗi SUC có thông tin chung, tiền điều kiện, hậu điều kiện, luồng sự kiện chính, luồng thay thế (A), luồng ngoại lệ (E), quy tắc nghiệp vụ (BR) và điểm cần chốt. Với nghiệp vụ nhiều lượt tương tác, trạng thái đang chờ được phân biệt với kết quả kết thúc. Trong SUC10.02, ACT02 bổ sung hồ sơ theo yêu cầu, còn ACT03 là người duy nhất đưa ra quyết định xác minh. Tương tự, trong SUC13.01 ACT02 chỉ gửi giải trình; quyết định về quyền hoạt động thuộc ACT03.
+2. P01 – P02: Thông tin và kế hoạch chuyến đi
+2.1. SUC01.01 – Tìm kiếm thông tin du lịch
+Mục
+Nội dung
+Mã / Tên
+SUC01.01 – Tìm kiếm thông tin du lịch
+Mục tiêu
+Khách tra cứu, lọc và xem thông tin du lịch phù hợp nhu cầu để cân nhắc lựa chọn.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+Không có
+BUC nguồn
+BUC01
+Kích hoạt
+Khách chọn chức năng tìm kiếm thông tin du lịch.
+Tiền điều kiện
+Hệ thống có dữ liệu du lịch đã được ghi nhận hoặc công bố để tra cứu; khách có tiêu chí tìm kiếm. Tra cứu thông tin công khai không yêu cầu đăng nhập.
+Hậu điều kiện (thành công)
+Hệ thống trả kết quả tra cứu theo tiêu chí hoặc thông báo không có kết quả phù hợp; không tự tạo lịch trình hay yêu cầu đặt dịch vụ.
+Hậu điều kiện (không thành công)
+Không truy vấn hoặc không hiển thị được kết quả do lỗi xử lý; hệ thống thông báo rõ và không tạo thay đổi dữ liệu nghiệp vụ.
+Luồng sự kiện chính
+1.Khách chọn chức năng tìm kiếm.
+2.Hệ thống hiển thị các tiêu chí: từ khóa, khu vực, loại dịch vụ (địa điểm, lưu trú, ăn uống, phương tiện, hoạt động), khoảng giá.
+3.Khách nhập hoặc chọn tiêu chí và gửi yêu cầu tìm.
+4.Hệ thống kiểm tra tiêu chí hợp lệ và truy vấn dữ liệu đang có.
+5.Hệ thống hiển thị danh sách kết quả với thông tin tóm tắt.
+6.Khách chọn một kết quả để xem chi tiết.
+7.Hệ thống hiển thị thông tin chi tiết đang lưu/công bố trong hệ thống: mô tả, địa điểm, giá tham khảo, thời gian và tình trạng phục vụ nếu có. Không tự khẳng định tính sẵn có tại thời điểm khách xem.
+8.Khách kết thúc hoặc quay lại bước 3 để tìm tiếp.
+Luồng thay thế
+•A1 – Lọc lại kết quả (tại bước 5): Khách thay đổi bộ lọc (giá, loại, khu vực). Hệ thống cập nhật danh sách; quay lại bước 5.
+•A2 – Không có kết quả (sau bước 4): Hệ thống thông báo chưa tìm thấy thông tin phù hợp. Khách có thể điều chỉnh tiêu chí ở bước 3 hoặc kết thúc tìm kiếm.
+Luồng ngoại lệ
+•E1 – Tiêu chí không hợp lệ (tại bước 4), ví dụ giá từ lớn hơn giá đến: Hệ thống báo lỗi tại tiêu chí sai; quay lại bước 3.
+•E2 – Mục thông tin không còn khả dụng (tại bước 7): Hệ thống thông báo mục này không còn được công bố hoặc chưa thể truy cập; khách quay lại danh sách kết quả.
+•E3 – Dữ liệu đang tra cứu bị gián đoạn hoặc không thể tải (tại bước 4 hoặc 7): Hệ thống thông báo chưa thể hiển thị đầy đủ và cho phép khách thử lại; không tự xác nhận thông tin đang thiếu.
+Quy tắc nghiệp vụ
+•BR01.01-1: Thông tin dịch vụ do nhà cung cấp đăng chỉ được công bố sau khi Admin xét duyệt tại SUC06.02. SUC01.01 tra cứu dữ liệu đã có trong hệ thống; không mặc định tích hợp trực tiếp một hệ thống bên ngoài.
+•BR01.01-2: Thông tin tìm thấy là tham khảo; không bảo đảm còn chỗ, giá cuối cùng hay giao dịch đã xác nhận.
+•BR01.01-3: Dịch vụ tạm ngừng phục vụ vẫn có thể được tra cứu kèm tình trạng đã công bố; việc tạm ngừng không đồng nghĩa xóa thông tin dịch vụ.
+•BR01.01-4: Không có chức năng lưu bộ sưu tập thông tin tham khảo (đã loại khỏi phạm vi BUC01).
+•BR01.01-5: Thông tin dịch vụ đã được duyệt có thể tiếp tục hiển thị dù dịch vụ ở trạng thái “Không tiếp nhận yêu cầu mới”; hệ thống phải thể hiện rõ tình trạng này và không dẫn khách tới thao tác đặt mới không hợp lệ. Dịch vụ của nhà cung cấp đã bị thu hồi quyền hoạt động (SUC13.01) không còn được hiển thị trong kết quả tra cứu.
+Điểm cần chốt
+•Danh mục tiêu chí lọc, cách sắp xếp, chất lượng dữ liệu và khả năng cập nhật thông tin. Nếu nhóm bổ sung tích hợp dịch vụ bên ngoài, phải xác định nguồn và tương tác đó trong tài liệu phân tích trước khi đặc tả.
+•Đồng bộ mô tả P01/BUC gốc còn ghi "tổng hợp/lưu tham khảo".
+2.2. SUC02.01 – Lập kế hoạch chuyến đi
+Mục
+Nội dung
+Mã / Tên
+SUC02.01 – Lập kế hoạch chuyến đi
+Mục tiêu
+Khách hình thành, xem lại, điều chỉnh và lưu một lịch trình dự kiến mà mình chấp nhận.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+Không có
+BUC nguồn
+BUC02 (dùng lại SUC01.01 để chọn hoạt động)
+Kích hoạt
+Khách chọn tạo kế hoạch mới hoặc mở một kế hoạch đã lưu.
+Tiền điều kiện
+Khách đã đăng nhập (SUC11.01).
+Hậu điều kiện (thành công)
+Kế hoạch được khách chấp nhận và lưu là “Đã chấp nhận”; hoặc được lưu “Nháp” khi khách chọn lưu nháp. Các dịch vụ trong kế hoạch vẫn là dự kiến nếu chưa đặt.
+Hậu điều kiện (không thành công)
+Không tạo được phiên bản lưu hợp lệ; kế hoạch đã lưu trước đó không bị ghi đè.
+Luồng sự kiện chính
+1.Khách chọn tạo kế hoạch chuyến đi.
+2.Hệ thống yêu cầu nhập thông tin chung: tên kế hoạch, nơi đến, ngày bắt đầu, ngày kết thúc, ngân sách dự kiến.
+3.Khách nhập thông tin chung.
+4.Khách thêm hoạt động vào từng ngày (chọn từ kết quả tìm kiếm – SUC01.01 – hoặc tự nhập), kèm thời gian và chi phí dự kiến.
+5.Hệ thống sắp xếp lịch trình theo ngày/giờ, tính tổng chi phí dự kiến và hiển thị các xung đột nhận biết được (trùng giờ, vượt ngân sách).
+6.Khách xem lại lịch trình, điều chỉnh các mục chưa phù hợp rồi yêu cầu hệ thống cập nhật phần tính toán và cảnh báo nếu cần.
+7.Khách chọn chấp nhận kế hoạch.
+8.Hệ thống lưu kế hoạch với trạng thái "Đã chấp nhận" và thông báo lưu thành công.
+Luồng thay thế
+•A1 – Lưu nháp (tại bước 6 hoặc 7): Khách chọn lưu mà chưa chấp nhận. Hệ thống lưu với trạng thái "Nháp"; kết thúc.
+•A2 – Mở kế hoạch đã lưu (tại bước 1): Khách chọn một kế hoạch trong danh sách của mình. Hệ thống hiển thị nội dung; tiếp tục bước 6.
+•A3 – Còn cảnh báo tại bước 5 hoặc 6: Trùng thời gian hoặc chi phí dự kiến vượt ngân sách là cảnh báo để khách cân nhắc và có thể điều chỉnh. Không tự chặn lưu chỉ vì cảnh báo; việc chấp nhận kế hoạch vẫn phải đáp ứng các điều kiện dữ liệu hợp lệ ở E1/E2.
+Luồng ngoại lệ
+•E1 – Thông tin bắt buộc không hợp lệ (tại bước 3), ví dụ thiếu ngày hoặc ngày kết thúc trước ngày bắt đầu: Hệ thống yêu cầu sửa. Không được lưu kế hoạch ở trạng thái “Đã chấp nhận”; bản nháp chỉ lưu được khi đáp ứng bộ dữ liệu tối thiểu đã quy định.
+•E2 – Hoạt động nằm ngoài khoảng ngày của chuyến đi (tại bước 4): Hệ thống không chấp nhận thêm hoạt động không hợp lệ và thông báo để khách sửa ngày hoạt động hoặc khoảng thời gian chuyến đi. Quy tắc này áp dụng cả khi đang soạn bản nháp lẫn khi chấp nhận kế hoạch; dữ liệu hợp lệ đã có không bị thay đổi.
+•E3 – Lỗi lưu dữ liệu (tại bước 8): Hệ thống thông báo không lưu được, giữ nội dung đang soạn để khách thử lại.
+Quy tắc nghiệp vụ
+•BR02.01-1: Kế hoạch "Đã chấp nhận" không đồng nghĩa đã đặt dịch vụ; việc đặt thực hiện qua SUC07.01.
+•BR02.01-2: Chi phí trong kế hoạch là chi phí dự kiến do khách hoặc thông tin tham khảo cung cấp.
+•BR02.01-3: Lỗi dữ liệu chặn ghi nhận mục không hợp lệ gồm ngày chuyến đi sai, thiếu thông tin bắt buộc theo mức lưu tương ứng và hoạt động nằm ngoài khoảng chuyến đi (áp dụng cả nháp lẫn kế hoạch đã chấp nhận). Trùng giờ và vượt ngân sách dự kiến là cảnh báo lựa chọn, không tự chặn lưu. Các trường tối thiểu cho nháp phải đối chiếu FR.
+•BR02.01-4: Khách chỉ xem và sửa kế hoạch của chính mình.
+Điểm cần chốt
+•Quy tắc sửa kế hoạch đã chấp nhận và các trường tối thiểu để lưu nháp. Cần chốt xung đột nào chỉ cảnh báo và trường hợp nào là vi phạm điều kiện bắt buộc; không tự bổ sung ràng buộc ngoài FR.
+•Chưa mặc định có chức năng xóa toàn bộ kế hoạch hoặc đặt dịch vụ tự động.
+3. P03: Tìm và kết nối người đồng hành
+3.1. SUC03.01 – Tìm kiếm người đồng hành
+Mục
+Nội dung
+Mã / Tên
+SUC03.01 – Tìm kiếm người đồng hành
+Mục tiêu
+Khách tìm được những nhu cầu đồng hành đang công bố có cùng nơi đến, cùng thời gian để cân nhắc liên hệ.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+Không có
+BUC nguồn
+BUC03
+Kích hoạt
+Khách chọn chức năng tìm người đồng hành.
+Tiền điều kiện
+Khách có tiêu chí tìm kiếm. Danh sách nhu cầu được công bố có thể trống; không yêu cầu tồn tại sẵn một bài đăng. Phạm vi xem khi chưa đăng nhập vẫn cần đối chiếu FR.
+Hậu điều kiện (thành công)
+Khách được xem các nhu cầu phù hợp trong phạm vi được phép chia sẻ hoặc được thông báo không có nhu cầu phù hợp.
+Hậu điều kiện (không thành công)
+Không thể truy vấn dữ liệu; hệ thống thông báo lỗi và không tiết lộ thông tin ngoài phạm vi được chia sẻ.
+Luồng sự kiện chính
+1.Khách chọn tìm người đồng hành.
+2.Hệ thống hiển thị tiêu chí: nơi đến, khoảng thời gian, ngân sách, hình thức đi.
+3.Khách nhập tiêu chí và gửi yêu cầu tìm.
+4.Hệ thống tìm các nhu cầu còn được phép công bố của tài khoản đang hoạt động, phù hợp tiêu chí. Nếu khách đã đăng nhập, hệ thống loại trừ nhu cầu do chính khách đăng.
+5.Hệ thống hiển thị danh sách kết quả.
+6.Khách chọn một nhu cầu để xem chi tiết.
+7.Hệ thống hiển thị chi tiết nhu cầu, chỉ gồm thông tin người đăng cho phép chia sẻ.
+8.Khách kết thúc, tìm tiếp, hoặc chọn gửi đề nghị kết nối (chuyển sang SUC04.01).
+Luồng thay thế
+•A1 – Không có kết quả (tại bước 4): Hệ thống thông báo và gợi ý mở rộng tiêu chí hoặc tự công bố nhu cầu (SUC03.02).
+Luồng ngoại lệ
+•E1 – Tiêu chí không hợp lệ (tại bước 3), ví dụ khoảng ngày sai: Hệ thống báo lỗi; quay lại bước 3.
+•E2 – Nhu cầu đã không còn hiển thị (tại bước 7): Hệ thống thông báo; quay lại bước 5.
+Quy tắc nghiệp vụ
+•BR03.01-1: Chỉ hiển thị thông tin nằm trong phạm vi chia sẻ đã chọn và thuộc nhu cầu còn được phép công bố; nhu cầu gắn với tài khoản đã ngừng không tiếp tục được dùng để nhận đề nghị kết nối.
+•BR03.01-2: Tìm thấy người tương đồng chưa tạo ra kết nối hay thỏa thuận đồng hành.
+Điểm cần chốt
+•Nhóm cần xác định khách chưa đăng nhập được xem danh sách công bố đến mức nào; người gửi đề nghị kết nối phải được xác thực theo SUC04.01.
+3.2. SUC03.02 – Công bố nhu cầu tìm người đồng hành
+Mục
+Nội dung
+Mã / Tên
+SUC03.02 – Công bố nhu cầu tìm người đồng hành
+Mục tiêu
+Khách công bố nhu cầu đi cùng của mình để người khác tìm thấy và liên hệ.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+Không có
+BUC nguồn
+BUC03
+Kích hoạt
+Khách chọn đăng nhu cầu tìm người đồng hành.
+Tiền điều kiện
+Khách đã đăng nhập (SUC11.01).
+Hậu điều kiện (thành công)
+Nhu cầu được lưu và hiển thị trong kết quả SUC03.01 theo phạm vi chia sẻ đã chọn.
+Hậu điều kiện (không thành công)
+Nhu cầu không được công bố.
+Luồng sự kiện chính
+1.Khách chọn đăng nhu cầu.
+2.Hệ thống hiển thị biểu mẫu các nội dung chuyến đi và phạm vi chia sẻ: điểm đến, thời gian, mong muốn đồng hành và những thông tin cần thiết khác theo FR.
+3.Khách nhập nội dung và chọn phạm vi chia sẻ.
+4.Hệ thống hiển thị bản xem trước đúng như người khác sẽ thấy.
+5.Khách xác nhận công bố.
+6.Hệ thống kiểm tra dữ liệu, lưu nhu cầu và thông báo công bố thành công.
+Luồng thay thế
+•A1 – Sửa trước khi công bố (tại bước 4): Khách chọn sửa; quay lại bước 3.
+•A2 – Khách hủy (tại bước 3–5): Hệ thống không lưu; kết thúc.
+Luồng ngoại lệ
+•E1 – Dữ liệu thiếu, không hợp lệ hoặc phạm vi chia sẻ không phù hợp (tại bước 6): Hệ thống thông báo mục cần sửa; không công bố cho đến khi thông tin hợp lệ.
+Quy tắc nghiệp vụ
+•BR03.02-1: Khách quyết định nội dung và phạm vi chia sẻ; hệ thống không hiển thị thông tin ngoài phạm vi đó.
+•BR03.02-2: Công bố nhu cầu không tạo thỏa thuận đồng hành nào.
+Điểm cần chốt
+•Quyền sửa, ngừng hiển thị, xóa nhu cầu hoặc tự hết hiệu lực sau ngày đi cần đối chiếu FR. Riêng khi tài khoản khách đã ngừng, nhu cầu của tài khoản đó không còn được dùng để tiếp nhận kết nối mới (SUC14.01).
+3.3. SUC04.01 – Kết nối người đồng hành
+Mục
+Nội dung
+Mã / Tên
+SUC04.01 – Kết nối người đồng hành
+Mục tiêu
+Hai khách đồng ý liên hệ với nhau để trao đổi về chuyến đi cùng nhau.
+Actor chính
+ACT01 – Khách du lịch (vai trò người gửi đề nghị)
+Actor tham gia
+ACT01 – Khách du lịch (vai trò người nhận đề nghị)
+BUC nguồn
+BUC04 (dùng lại SUC03.01)
+Kích hoạt
+Người gửi chọn "Gửi đề nghị kết nối" tại một nhu cầu đồng hành.
+Tiền điều kiện
+Người gửi có tài khoản và đã đăng nhập; có một nhu cầu đồng hành được chọn làm đối tượng gửi đề nghị. Trạng thái công bố của nhu cầu và tài khoản người nhận được hệ thống kiểm tra trước khi gửi.
+Hậu điều kiện (thành công)
+Người nhận đã chấp nhận đề nghị kết nối; hệ thống ghi nhận kết nối để hai bên trao đổi. Chưa hình thành thỏa thuận đồng hành.
+Hậu điều kiện (không thành công)
+Đề nghị bị từ chối, được rút hợp lệ hoặc không thể tạo; không hình thành kết nối.
+Trạng thái chưa kết thúc
+Đề nghị đã gửi nhưng chưa có phản hồi giữ trạng thái “Chờ phản hồi”; không coi là kết nối thành công hoặc bị từ chối.
+Luồng sự kiện chính
+1.Người gửi chọn gửi đề nghị kết nối tới người đăng một nhu cầu.
+2.Hệ thống hiển thị ô nhập lời giới thiệu ngắn.
+3.Người gửi nhập lời giới thiệu và xác nhận gửi.
+4.Hệ thống lưu đề nghị “Chờ phản hồi”, thông báo cho người nhận và kết thúc lượt gửi; không đòi hỏi người nhận phản hồi ngay.
+5.Ở lần truy cập sau, người nhận mở đề nghị; hệ thống hiển thị lời giới thiệu và thông tin người gửi được phép chia sẻ.
+6.Người nhận chọn "Chấp nhận".
+7.Hệ thống cập nhật đề nghị thành "Đã chấp nhận", thông báo cho người gửi và cho phép hai bên trao đổi.
+Luồng thay thế
+•A1 – Người nhận từ chối (tại bước 6): Hệ thống cập nhật "Từ chối" và thông báo cho người gửi; kết thúc.
+•A2 – Người gửi rút đề nghị khi chưa có phản hồi (sau bước 4): Hệ thống cập nhật "Đã rút"; kết thúc.
+•A3 – Chưa được phản hồi (sau bước 4): Đề nghị tiếp tục ở trạng thái “Chờ phản hồi”; không có quyết định đồng hành và không tự hết hạn khi chưa có quy định.
+Luồng ngoại lệ
+•E1 – Đã có đề nghị đang chờ giữa hai người cho cùng nhu cầu (tại bước 3): Hệ thống thông báo và không tạo đề nghị trùng.
+•E2 – Nhu cầu không còn công bố hoặc tài khoản người nhận đã ngừng sử dụng (kiểm tra trước khi gửi tại bước 3): Hệ thống không tạo đề nghị mới và thông báo lý do.
+•E3 – Khách gửi đề nghị cho nhu cầu của chính mình: Hệ thống không cho phép.
+•E4 – Hai khách đã có kết nối được chấp nhận cho cùng nhu cầu (tại bước 3): Hệ thống thông báo kết nối hiện có, không tạo đề nghị trùng. Với đề nghị đã bị từ chối trước đó, chỉ cho gửi lại theo quy tắc được nhóm xác định.
+•E5 – Sau khi gửi, một trong hai tài khoản ngừng sử dụng trước khi người nhận phản hồi (tại bước 5–7): Hệ thống không chấp nhận đề nghị và ghi nhận đề nghị không còn hiệu lực để kết nối; lưu thông tin cần đối chiếu và thông báo cho phía đang hoạt động. Không tạo thỏa thuận đồng hành mới.
+Quy tắc nghiệp vụ
+•BR04.01-1: Hệ thống phân biệt rõ đề nghị đang chờ, bị từ chối và đã chấp nhận.
+•BR04.01-2: Chấp nhận kết nối chỉ cho phép trao đổi; không có nghĩa hai bên đã đồng ý đi cùng (thỏa thuận thuộc SUC04.02).
+•BR04.01-3: Chỉ người nhận được chấp nhận hoặc từ chối; chỉ người gửi được rút đề nghị.
+Điểm cần chốt
+•Cơ chế trao đổi sau kết nối; thời hạn đề nghị chờ; điều kiện gửi lại đề nghị từng bị từ chối. Cần đồng bộ quy tắc xử lý đề nghị còn chờ khi một tài khoản ngừng sử dụng với SUC14.01 và FR.
+3.4. SUC04.02 – Quản lý thỏa thuận đồng hành
+Mục
+Nội dung
+Mã / Tên
+SUC04.02 – Quản lý thỏa thuận đồng hành
+Mục tiêu
+Hai khách đã kết nối xác nhận nội dung đồng hành; khi phát sinh nhu cầu, hệ thống hỗ trợ đề nghị sửa đổi, cùng thống nhất ngừng hoặc một bên thông báo rút khỏi việc đồng hành.
+Actor chính
+ACT01 – Khách du lịch (bên đề xuất nội dung/thay đổi)
+Actor tham gia
+ACT01 – Khách du lịch (bên xác nhận)
+BUC nguồn
+BUC04. Quy tắc “Một bên đã rút” là phương án xử lý đã chọn trong quá trình hiệu chỉnh SUC; cần cập nhật BUC04 và FR trước khi xác nhận V&V.
+Kích hoạt
+Một bên chọn “Tạo thỏa thuận”, “Đề nghị thay đổi”, “Đề nghị cùng ngừng” hoặc “Thông báo rút khỏi đồng hành” trên kết nối/thỏa thuận liên quan.
+Tiền điều kiện
+Hai khách đã có kết nối "Đã chấp nhận" (SUC04.01); người thực hiện đã đăng nhập.
+Hậu điều kiện (thành công)
+Thỏa thuận được xác nhận hoặc sửa đổi khi cả hai đồng ý cùng nội dung; nếu hai bên thống nhất kết thúc thì ghi “Đã ngừng”. Khi một bên gửi thông báo rút hợp lệ, thỏa thuận kết thúc với trạng thái “Một bên đã rút”, không phải chờ bên kia xác nhận.
+Hậu điều kiện (không thành công)
+Đề nghị tạo/sửa hoặc đề nghị cùng ngừng không hợp lệ, không được chấp thuận; không tự thay đổi các điều kiện đã có. Thông báo rút không hợp lệ không làm kết thúc thỏa thuận.
+Trạng thái chưa kết thúc
+Đề nghị tạo hoặc sửa nội dung chưa được hai bên thống nhất giữ trạng thái “Chờ xác nhận”. Với thông báo rút, “Chưa xem/Đã xem” chỉ là trạng thái xem thông báo của bên còn lại, không phải trạng thái hay điều kiện kết thúc thỏa thuận.
+Luồng sự kiện chính – Tạo thỏa thuận
+1.Bên A chọn tạo thỏa thuận đồng hành với B.
+2.Hệ thống hiển thị biểu mẫu: ngày đi, ngày về, nơi đến, ngân sách/cách chia chi phí, phạm vi đi cùng.
+3.A nhập nội dung và gửi để B xác nhận.
+4.Hệ thống lưu bản đề nghị ở trạng thái “Chờ xác nhận”, thông báo cho B và kết thúc lượt gửi.
+5.B mở đề nghị, kiểm tra nội dung và chọn “Xác nhận” nếu đồng ý với đúng phiên bản đang xem.
+6.Hệ thống lưu thỏa thuận "Đã xác nhận" và thông báo cho cả hai.
+Luồng thay thế
+•A1 – B từ chối (tại bước 5): Hệ thống ghi nhận đề nghị bị từ chối và thông báo A. Nếu chưa có thỏa thuận thì không tạo thỏa thuận; nếu là đề nghị sửa thì thỏa thuận cũ vẫn giữ nguyên.
+•A2 – B đề xuất nội dung khác (tại bước 5): Hệ thống lưu phiên bản mới và gửi A xem xét. Bản mới chỉ có hiệu lực sau khi cả hai cùng xác nhận, không dùng sự đồng ý đối với phiên bản cũ.
+•A3 – Điều chỉnh thỏa thuận đã xác nhận: Một bên tạo đề nghị sửa; hệ thống lưu bản đề nghị “Chờ xác nhận” và giữ nguyên thỏa thuận đang có. Khi bên kia đồng ý cùng nội dung, hệ thống mới áp dụng bản sửa; nếu từ chối hoặc chưa phản hồi, bản cũ vẫn có hiệu lực.
+•A4 – Một bên rút khỏi thỏa thuận đã xác nhận: Bên rút xác nhận ngừng tham gia và ghi lý do nếu muốn. Hệ thống kết thúc thỏa thuận ngay ở trạng thái “Một bên đã rút”, lưu người và thời điểm rút, đồng thời thông báo cho bên còn lại. Thông báo có trạng thái “Chưa xem/Đã xem”; việc bên kia chưa xem hoặc không phản hồi không làm thỏa thuận tiếp tục có hiệu lực. Việc rút không tự động hủy thỏa thuận đặt dịch vụ; thay đổi/hủy dịch vụ thực hiện theo SUC08.01.
+•A5 – Hai bên cùng thống nhất ngừng: Một bên gửi đề nghị ngừng; hệ thống ghi đề nghị “Chờ xác nhận”. Nếu bên còn lại đồng ý, hệ thống kết thúc thỏa thuận với trạng thái “Đã ngừng”; nếu chưa trả lời hoặc từ chối, thỏa thuận cũ chưa bị thay đổi vì đề nghị này. Một bên vẫn có quyền sử dụng A4 để rút riêng, không phải chờ A5 được chấp nhận.
+Luồng ngoại lệ
+•E1 – Nội dung thiếu hoặc ngày không hợp lệ (tại bước 3): Hệ thống báo lỗi; quay lại bước 3.
+•E2 – Tài khoản hoặc kết nối không đủ điều kiện tại thời điểm gửi/xác nhận (bao gồm tài khoản đã ngừng): Hệ thống không tạo sự đồng ý mới; thông báo lý do và giữ nguyên các bản ghi lịch sử. Một thỏa thuận đã kết thúc ở trạng thái “Một bên đã rút” hoặc “Đã ngừng” không được tự mở lại qua đề nghị cũ.
+Quy tắc nghiệp vụ
+•BR04.02-1: Thỏa thuận chỉ có hiệu lực khi cả hai bên xác nhận cùng một nội dung.
+•BR04.02-2: Khi nội dung đã xác nhận thay đổi, sự đồng ý cũ không được tự xem là đồng ý cho nội dung mới.
+•BR04.02-3: Lưu các nội dung đã xác nhận và các phiên bản đề nghị cần đối chiếu; không ghi đè lịch sử khi có thay đổi.
+•BR04.02-4: Phân biệt hai cách kết thúc: “Đã ngừng” khi hai bên thống nhất và “Một bên đã rút” khi một bên thông báo rút hợp lệ. Cả hai là trạng thái kết thúc; việc bên còn lại xem thông báo chỉ được theo dõi riêng. Quyền và nghĩa vụ phát sinh từ các dịch vụ đã đặt phải xử lý theo nghiệp vụ dịch vụ liên quan, không tự coi đã hủy.
+Điểm cần chốt
+•Cần cập nhật BUC04/FR để xác nhận cơ chế “Một bên đã rút” là trạng thái kết thúc độc lập với việc bên còn lại xem thông báo. Cần làm rõ dữ liệu ghi nhận việc rút, phần nghĩa vụ chi phí/đặt dịch vụ còn liên quan và trường hợp nhiều hơn hai người. Việc rút không tự động hủy đặt dịch vụ hoặc xóa dữ liệu đã xác nhận.
+4. P04: Tình huống phát sinh khi đang đi
+4.1. SUC05.01 – Hỗ trợ xử lý tình huống phát sinh
+Mục
+Nội dung
+Mã / Tên
+SUC05.01 – Hỗ trợ xử lý tình huống phát sinh
+Mục tiêu
+Khách ghi nhận một tình huống phát sinh trong chuyến đi, phương án đã chọn và theo dõi mức độ giải quyết.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+Không có (ACT02 chỉ tham gia khi khách dùng SUC08.01)
+BUC nguồn
+BUC05 (dùng lại SUC01.01, SUC02.01, SUC07.01, SUC08.01)
+Kích hoạt
+Khách chọn "Báo tình huống phát sinh" trong một kế hoạch chuyến đi.
+Tiền điều kiện
+Khách đã đăng nhập và có ít nhất một kế hoạch chuyến đi (SUC02.01).
+Hậu điều kiện (thành công)
+Tình huống được ghi nhận với trạng thái và kết quả đúng những gì đã xảy ra; tình huống chỉ được đánh dấu “Đã giải quyết” khi đã có kết quả xử lý thực tế.
+Hậu điều kiện (không thành công)
+Không lưu được tình huống hoặc bản cập nhật mới; thông tin đã lưu trước đó vẫn được giữ.
+Trạng thái chưa kết thúc
+Tình huống mới ghi nhận, mới chọn phương án hoặc mới giải quyết một phần chưa được coi là đã xử lý xong.
+Luồng sự kiện chính
+1.Khách mở kế hoạch chuyến đi và chọn báo tình huống phát sinh.
+2.Hệ thống hiển thị biểu mẫu: loại tình huống (điểm đến không phục vụ, thời tiết, dịch vụ có vấn đề, khác), hoạt động bị ảnh hưởng, mô tả.
+3.Khách nhập thông tin tình huống và lưu.
+4.Hệ thống lưu tình huống với trạng thái "Chưa giải quyết" và hiển thị các cách xử lý có thể dùng: tìm nơi khác (SUC01.01), điều chỉnh lịch trình (SUC02.01), đặt dịch vụ mới (SUC07.01), đổi/hủy dịch vụ (SUC08.01).
+5.Khách chọn và ghi nhận phương án xử lý.
+6.Hệ thống lưu phương án và chuyển trạng thái sang "Đã chọn phương án".
+7.Sau khi thực hiện phương án, khách cập nhật đúng kết quả thực tế: “Đã giải quyết”, “Giải quyết một phần”, “Chưa giải quyết” hoặc “Dừng xử lý”. Hệ thống không tự suy ra “Đã giải quyết” chỉ từ việc chọn phương án.
+8.Hệ thống lưu kết quả và hiển thị tình huống trong danh sách tình huống của chuyến đi.
+Luồng thay thế
+•A1 – Đổi phương án (tại bước 7): Khách chọn phương án khác; hệ thống giữ lịch sử phương án cũ, tình huống vẫn là một; quay lại bước 5.
+•A2 – Chưa thực hiện phương án (tại bước 7): Hệ thống giữ trạng thái “Đã chọn phương án”; khách có thể quay lại theo dõi sau.
+•A3 – Xem lại tình huống cũ: Khách mở danh sách tình huống và chọn một mục; tiếp tục từ bước 5 hoặc 7.
+Luồng ngoại lệ
+•E1 – Thiếu mô tả hoặc loại tình huống (tại bước 3): Hệ thống báo lỗi; quay lại bước 3.
+•E2 – Nghiệp vụ liên quan không thành công (tại bước 7), ví dụ yêu cầu đổi dịch vụ bị từ chối: Hệ thống giữ tình huống ở “Đã chọn phương án” nếu phương án đã được ghi nhận, hoặc “Chưa giải quyết” nếu chưa chọn phương án; không chuyển sang “Đã giải quyết”.
+Quy tắc nghiệp vụ
+•BR05.01-1: Tên trạng thái được dùng thống nhất: “Chưa giải quyết”, “Đã chọn phương án”, “Giải quyết một phần”, “Đã giải quyết”, “Dừng xử lý”; trạng thái “Đã giải quyết” chỉ dùng khi có kết quả thực tế.
+•BR05.01-2: Tìm kiếm, đổi lịch trình, đặt/hủy dịch vụ dùng lại SUC tương ứng, không xử lý trùng trong SUC này.
+•BR05.01-3: Cứu hộ, sửa xe hay trực tiếp cung cấp dịch vụ ngoài đời không phải trách nhiệm của hệ thống.
+Điểm cần chốt
+•Đối chiếu FR về việc lưu và theo dõi tình huống qua nhiều lần. Nếu FR không hỗ trợ lưu trạng thái, phải điều chỉnh lại mục tiêu/phạm vi SUC05.01 và BUC05 trước khi thiết kế, không coi chức năng này đã được xác nhận.
+•Danh mục loại tình huống chính thức.
+5. P05: Công bố và xét duyệt thông tin dịch vụ
+5.1. SUC06.01 – Quản lý thông tin dịch vụ
+Mục
+Nội dung
+Mã / Tên
+SUC06.01 – Quản lý thông tin dịch vụ
+Mục tiêu
+Nhà cung cấp tạo và cập nhật thông tin dịch vụ để được Admin xét duyệt, đồng thời theo dõi tình trạng tiếp nhận yêu cầu của dịch vụ theo phạm vi được hệ thống quy định.
+Actor chính
+ACT02 – Nhà cung cấp dịch vụ
+Actor tham gia
+Không có (nội dung được chuyển sang SUC06.02 để ACT03 xét duyệt)
+BUC nguồn
+BUC06
+Kích hoạt
+Nhà cung cấp chọn thêm dịch vụ mới hoặc mở một dịch vụ đã đăng.
+Tiền điều kiện
+Nhà cung cấp đã đăng nhập và xác định được dịch vụ thuộc quyền quản lý hoặc chọn tạo dịch vụ mới. Quyền đăng nội dung phụ thuộc kết quả xác minh và được kiểm tra tại thời điểm thực hiện.
+Hậu điều kiện (thành công)
+Bản thông tin mới, bản cập nhật hoặc thông báo thay đổi tình trạng phục vụ được lưu và gửi Admin xét duyệt khi đưa ra công bố; bản đã được duyệt trước đó không bị thay thế trước quyết định mới.
+Hậu điều kiện (không thành công)
+Bản gửi mới không được chấp nhận; thông tin đang công bố giữ nguyên, lịch sử hợp lệ không bị xóa.
+Trạng thái chưa kết thúc
+Nội dung đã gửi nhưng chưa được Admin quyết định có trạng thái “Chờ duyệt”; chưa được coi là thông tin đã công bố.
+Luồng sự kiện chính – Đăng dịch vụ mới
+1.Nhà cung cấp chọn thêm dịch vụ.
+2.Hệ thống hiển thị biểu mẫu thông tin dịch vụ và trạng thái xác minh của nhà cung cấp; chỉ cho phép gửi nội dung khi quyền đăng dịch vụ đã được xác lập.
+3.Nhà cung cấp nhập thông tin và chọn gửi đăng.
+4.Hệ thống kiểm tra dữ liệu bắt buộc và định dạng.
+5.Hệ thống lưu dịch vụ với trạng thái "Chờ duyệt", chuyển vào danh sách xét duyệt của Admin (SUC06.02) và thông báo đã gửi.
+Luồng thay thế
+•A1 – Xem và cập nhật dịch vụ đã đăng (tại bước 1): Nhà cung cấp chọn một dịch vụ trong danh sách của mình; hệ thống hiển thị nội dung và trạng thái duyệt. Nhà cung cấp sửa (ví dụ giá, giờ mở cửa) và gửi; hệ thống lưu bản cập nhật "Chờ duyệt", phiên bản đang công bố vẫn hiển thị cho đến khi được duyệt.
+•A2 – Thông báo tạm ngừng phục vụ: Nhà cung cấp nhập thời gian, lý do và phạm vi ảnh hưởng, sau đó gửi nội dung cập nhật để Admin xét duyệt tại SUC06.02. Chỉ bản được duyệt mới hiển thị cho khách; dịch vụ không tự bị xóa hoặc ẩn chỉ vì tạm ngừng.
+•A3 – Sửa nội dung theo yêu cầu của Admin: Nhà cung cấp xem lý do cần sửa, bổ sung nội dung và gửi lại phiên bản mới; hệ thống chuyển bản mới sang “Chờ duyệt”, không áp dụng quyết định của bản cũ.
+•A4 – Lưu nháp (tại bước 3): Hệ thống lưu "Nháp", chưa chuyển xét duyệt.
+Luồng ngoại lệ
+•E1 – Thiếu thông tin bắt buộc hoặc sai định dạng (tại bước 4): Hệ thống báo lỗi tại trường sai; quay lại bước 3.
+•E2 – Nhà cung cấp chưa được xác minh, đang bị tạm đình chỉ hoặc đã bị thu hồi quyền hoạt động (SUC13.01) (tại bước 1 hoặc 2): Hệ thống không cho gửi đăng/cập nhật nội dung công bố, thông báo cần hoàn tất xác minh SUC10.02; thông tin đã công bố trước đó không tự thay đổi.
+•E3 – Thời gian tạm ngừng không hợp lệ (tại A2): Hệ thống báo lỗi.
+Quy tắc nghiệp vụ
+•BR06.01-1: Nhà cung cấp đã xác minh vẫn phải qua xét duyệt thông tin dịch vụ (SUC06.02) trước khi công bố.
+•BR06.01-2: Tạm ngừng phục vụ là tình trạng cần được thông báo chính xác sau xét duyệt, không tự đồng nghĩa ẩn hoặc xóa dịch vụ.
+•BR06.01-3: Thay đổi thông tin công bố không làm thay đổi hoặc xóa các thỏa thuận đã xác nhận với khách.
+•BR06.01-4: Nhà cung cấp chỉ quản lý dịch vụ của chính mình. SUC không bao gồm xóa dịch vụ.
+•BR06.01-5: Phân biệt trạng thái công bố nội dung (do Admin xét duyệt tại SUC06.02) với trạng thái tiếp nhận yêu cầu đặt dịch vụ. Khi tài khoản nhà cung cấp ngừng sử dụng ở SUC14.01, hoặc nhà cung cấp bị tạm đình chỉ/thu hồi quyền hoạt động ở SUC13.01, hệ thống tự đánh dấu các dịch vụ thuộc tài khoản là “Không tiếp nhận yêu cầu mới”; cờ vận hành này không chỉnh sửa hoặc tự phê duyệt nội dung công bố.
+Điểm cần chốt
+•Rủi ro cần xử lý: nhà cung cấp tạm ngừng phục vụ trên thực tế nhưng bản cập nhật tình trạng còn “Chờ duyệt”, khiến khách vẫn thấy thông tin đã duyệt trước đó. Nhóm phải chốt cơ chế cảnh báo hoặc tạm ngừng tiếp nhận yêu cầu trong thời gian này mà không tự công bố nội dung chưa duyệt. Riêng cờ “Không tiếp nhận yêu cầu mới” do ngừng tài khoản được hệ thống kích hoạt tự động theo SUC14.01, không phải một lần xét duyệt nội dung mới.
+•Nhà cung cấp ngừng hẳn một dịch vụ thì xử lý thế nào.
+5.2. SUC06.02 – Xét duyệt thông tin dịch vụ
+Mục
+Nội dung
+Mã / Tên
+SUC06.02 – Xét duyệt thông tin dịch vụ
+Mục tiêu
+Admin quyết định nội dung dịch vụ do nhà cung cấp gửi đăng hoặc cập nhật được chấp thuận, bị từ chối hay cần sửa trước khi công bố.
+Actor chính
+ACT03 – Quản trị viên
+Actor tham gia
+Không có (ACT02 nhận thông báo kết quả)
+BUC nguồn
+BUC06 + quyết định phạm vi của nhóm
+Kích hoạt
+Admin mở danh sách thông tin dịch vụ chờ duyệt.
+Tiền điều kiện
+Admin đã đăng nhập và có quyền thực hiện xét duyệt thông tin dịch vụ. Danh sách chờ duyệt có thể trống.
+Hậu điều kiện (thành công)
+Admin có quyết định hợp lệ đối với đúng phiên bản nội dung: “Đã duyệt”, “Từ chối” hoặc “Cần sửa”; hệ thống ghi nhận quyết định và thông báo cho nhà cung cấp.
+Hậu điều kiện (không thành công)
+Không ghi nhận quyết định mới; nội dung chờ duyệt và phiên bản đã công bố trước đó (nếu có) không bị thay đổi.
+Trạng thái chưa kết thúc
+Nội dung chưa được Admin xử lý tiếp tục “Chờ duyệt”, không được tự công bố.
+Luồng sự kiện chính
+1.Admin chọn chức năng xét duyệt thông tin dịch vụ.
+2.Hệ thống hiển thị danh sách nội dung "Chờ duyệt" (dịch vụ mới và bản cập nhật), sắp theo thời gian gửi.
+3.Admin chọn một nội dung.
+4.Hệ thống hiển thị nội dung chi tiết, nhà cung cấp, mã hoặc thời điểm phiên bản; với bản cập nhật, hiển thị khác biệt so với phiên bản đang công bố.
+5.Admin xem xét và chọn "Duyệt".
+6.Hệ thống kiểm tra bản đang xét có còn là phiên bản chờ duyệt hợp lệ; ghi quyết định, người duyệt và thời điểm. Chỉ khi duyệt, hệ thống công bố đúng phiên bản đó; nếu là bản sửa, bản đang công bố được thay thế theo kết quả duyệt.
+Luồng thay thế
+•A1 – Từ chối (tại bước 5): Admin chọn "Từ chối" và nhập lý do. Hệ thống ghi "Từ chối", không công bố, thông báo nhà cung cấp kèm lý do.
+•A2 – Yêu cầu sửa (tại bước 5): Admin chọn "Cần sửa" và nhập nội dung cần sửa. Hệ thống ghi "Cần sửa" và thông báo nhà cung cấp (tiếp tục tại SUC06.01 A3).
+•A3 – Danh sách trống (tại bước 2): Hệ thống thông báo hiện không có nội dung chờ duyệt; Admin kết thúc thao tác mà không tạo quyết định nào.
+Luồng ngoại lệ
+•E1 – Thiếu lý do khi từ chối hoặc yêu cầu sửa (tại A1, A2): Hệ thống yêu cầu nhập lý do.
+•E2 – Phiên bản đã được xử lý hoặc nhà cung cấp đã gửi bản mới hơn (tại bước 5): Hệ thống không áp dụng quyết định lên bản đã thay đổi; hiển thị trạng thái hiện tại để Admin chọn đúng bản cần xem xét.
+Quy tắc nghiệp vụ
+•BR06.02-1: Chỉ nội dung "Đã duyệt" mới hiển thị cho khách trong SUC01.01.
+•BR06.02-2: Từ chối hoặc yêu cầu sửa phải kèm lý do.
+•BR06.02-3: Mỗi quyết định xét duyệt được lưu lại (người duyệt, thời điểm, kết quả, lý do).
+•BR06.02-4: Xét duyệt thông tin dịch vụ khác với xác minh nhà cung cấp (SUC10.02).
+Điểm cần chốt
+•Tiêu chí duyệt cụ thể và thời hạn xử lý; cần bổ sung vào BUC06 và FR.
+6. P06: Đặt, thay đổi và thực hiện dịch vụ
+6.1. SUC07.01 – Đặt dịch vụ du lịch
+Mục
+Nội dung
+Mã / Tên
+SUC07.01 – Đặt dịch vụ du lịch
+Mục tiêu
+Khách có được một dịch vụ theo điều kiện (thời gian, số lượng, giá) được cả khách và nhà cung cấp chấp nhận.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+ACT02 – Nhà cung cấp dịch vụ (xem xét, phản hồi, xác nhận)
+BUC nguồn
+BUC07 (dùng thông tin từ SUC01.01/SUC06.01)
+Kích hoạt
+Khách chọn "Đặt dịch vụ" tại trang chi tiết một dịch vụ.
+Tiền điều kiện
+Khách đã đăng nhập và chọn được một dịch vụ để gửi yêu cầu. Trạng thái công bố, khả năng tiếp nhận yêu cầu và điều kiện phục vụ phải được kiểm tra trước khi gửi.
+Hậu điều kiện (thành công)
+Một thỏa thuận dịch vụ “Đã xác nhận” được ghi nhận theo các điều kiện cuối cùng mà cả khách và nhà cung cấp cùng chấp thuận; các hạng mục được chấp nhận được thể hiện rõ.
+Hậu điều kiện (không thành công)
+Yêu cầu bị từ chối hoặc kết thúc “Không tiếp tục”; không hình thành thỏa thuận. Những dữ liệu gửi/nhận đã phát sinh được lưu theo quy định.
+Trạng thái chưa kết thúc
+Yêu cầu đang chờ nhà cung cấp hoặc khách phản hồi chưa tạo thỏa thuận và không được hiển thị là “Đã đặt thành công”.
+Luồng sự kiện chính
+1.Khách chọn dịch vụ và bắt đầu gửi yêu cầu đặt.
+2.Hệ thống hiển thị thông tin dịch vụ cùng biểu mẫu theo loại dịch vụ (ví dụ phòng: ngày nhận, ngày trả, số người, số phòng).
+3.Khách nhập thời gian, số lượng và các điều kiện mong muốn, chọn “Tiếp tục” để kiểm tra trước khi gửi.
+4.Hệ thống kiểm tra dữ liệu, nội dung dịch vụ đã công bố, trạng thái “Tiếp nhận yêu cầu mới/Không tiếp nhận yêu cầu mới” và thông báo tạm ngừng đã có hiệu lực. Khách xem các cảnh báo trước khi xác nhận gửi.
+5.Khách xác nhận gửi; hệ thống lưu yêu cầu “Chờ phản hồi” và thông báo cho nhà cung cấp.
+6.Nhà cung cấp mở yêu cầu và kiểm tra khả năng phục vụ theo điều kiện khách đã gửi.
+7.Nhà cung cấp chấp nhận đúng nội dung yêu cầu của khách, nếu có thể đáp ứng.
+8.Hệ thống đối chiếu hai phía đã chấp thuận cùng điều kiện; ghi thỏa thuận “Đã xác nhận” theo từng hạng mục và thông báo kết quả cho khách. Nếu hai phía chưa thống nhất cùng phiên bản, không xác nhận đặt thành công.
+Luồng thay thế
+•A1 – Nhà cung cấp từ chối (tại bước 7): Hệ thống ghi yêu cầu “Từ chối” và thông báo khách; không tạo thỏa thuận.
+•A2 – Nhà cung cấp đề xuất điều kiện khác (tại bước 7): Hệ thống ghi đề xuất mới và chuyển khách. Khách chỉ chấp thuận đúng bản đề xuất đang xem; nhà cung cấp phải xác nhận đúng điều kiện cuối cùng đã thống nhất thì hệ thống mới thực hiện bước 8. Nếu hai bên dừng hoặc không thống nhất, ghi “Không tiếp tục” và không tạo thỏa thuận.
+•A3 – Khách đề nghị rút khi yêu cầu đang chờ: Hệ thống chuyển SUC08.01 để kiểm tra điều kiện rút; khi rút có hiệu lực, ghi “Không tiếp tục”. Nếu chưa đủ điều kiện, yêu cầu vẫn “Chờ phản hồi”, không tự suy ra đã rút.
+Luồng ngoại lệ
+•E1 – Điều kiện nhập không hợp lệ (tại bước 4, trước khi gửi), ví dụ ngày trả trước ngày nhận: Hệ thống nêu lỗi và yêu cầu khách sửa ở bước 3.
+•E2 – Dịch vụ có thông báo tạm ngừng đã được công bố trong khoảng thời gian khách chọn (tại bước 4, trước khi gửi): Hệ thống cảnh báo tình trạng đang có hiệu lực và yêu cầu khách xem lại; không bảo đảm khả năng phục vụ nếu thông báo mới vẫn đang chờ duyệt.
+•E3 – Dịch vụ không còn được công bố (tại bước 1 hoặc 4): Hệ thống thông báo không thể gửi yêu cầu mới.
+•E4 – Nhà cung cấp ngừng sử dụng tài khoản, bị tạm đình chỉ/thu hồi quyền hoạt động (SUC13.01) hoặc dịch vụ ở trạng thái “Không tiếp nhận yêu cầu mới”: Hệ thống từ chối yêu cầu mới tại bước 4 và kiểm tra lại ngay trước khi ghi xác nhận ở bước 8 hoặc khi khách chấp thuận điều kiện thay thế (A2). Không biến yêu cầu đang chờ thành đặt thành công khi nhà cung cấp không còn có thể tiếp nhận. Đề nghị phát sinh trước đó được đối chiếu và xử lý theo SUC08.01, SUC13.01 hoặc SUC14.01, không tự coi là đã xác nhận.
+Quy tắc nghiệp vụ
+•BR07.01-1: Đặt thành công chỉ khi cả hai bên xác nhận đúng cùng điều kiện cuối cùng. Bên còn lại im lặng hoặc chỉ một bên chấp thuận chưa tạo thành thỏa thuận.
+•BR07.01-2: Thỏa thuận được lưu theo từng hạng mục để làm căn cứ cho SUC08.01 và SUC09.01.
+•BR07.01-3: Chỉ nhà cung cấp sở hữu dịch vụ được phản hồi yêu cầu.
+•BR07.01-4: SUC không bao gồm thanh toán tự động hay cung cấp dịch vụ thực tế.
+•BR07.01-5: Dịch vụ ở trạng thái “Không tiếp nhận yêu cầu mới” không được tạo yêu cầu đặt mới hoặc thỏa thuận mới; trạng thái này được kiểm tra lại khi hai bên chuẩn bị chốt cùng điều kiện. Thông tin đã công bố của dịch vụ có thể vẫn được tra cứu.
+Điểm cần chốt
+•Cần chốt thời hạn phản hồi, xác nhận qua nhiều lượt, thanh toán/đặt cọc và quyền xử lý yêu cầu của nhà cung cấp. Rủi ro cần giải quyết: thông báo tạm ngừng thực tế đang chờ Admin duyệt có thể khiến dữ liệu công bố chưa kịp phản ánh khả năng phục vụ; hệ thống không được mặc định việc gửi yêu cầu là chắc chắn còn chỗ.
+6.2. SUC08.01 – Yêu cầu thay đổi hoặc hủy dịch vụ
+Mục
+Nội dung
+Mã / Tên
+SUC08.01 – Yêu cầu thay đổi hoặc hủy dịch vụ
+Mục tiêu
+Khách điều chỉnh (đổi ngày, số lượng) hoặc hủy một yêu cầu/thỏa thuận đang có và biết kết quả có hiệu lực.
+Actor chính
+ACT01 – Khách du lịch tự túc
+Actor tham gia
+ACT02 – Nhà cung cấp (khi cần quyết định)
+BUC nguồn
+BUC08 (dựa trên yêu cầu/thỏa thuận từ SUC07.01)
+Kích hoạt
+Khách chọn "Thay đổi" hoặc "Hủy" tại một yêu cầu hoặc thỏa thuận của mình.
+Tiền điều kiện
+Khách đã đăng nhập; có yêu cầu chưa xác nhận hoặc thỏa thuận đã xác nhận thuộc quyền của mình. Việc đổi/hủy phải được kiểm tra theo trạng thái và điều kiện áp dụng.
+Hậu điều kiện (thành công)
+Yêu cầu hoặc thỏa thuận được sửa/hủy hợp lệ theo điều kiện đã thống nhất; hệ thống ghi nhận kết quả và lưu lịch sử cũ để đối chiếu.
+Hậu điều kiện (không thành công)
+Đề nghị bị từ chối, không hợp lệ hoặc bị rút; trạng thái có hiệu lực trước đó không tự thay đổi.
+Trạng thái chưa kết thúc
+Đề nghị chưa có đủ quyết định cần thiết giữ trạng thái “Chờ phản hồi”; việc gửi đề nghị không đồng nghĩa đã đổi/hủy thành công.
+Luồng sự kiện chính – Thay đổi thỏa thuận đã xác nhận
+1.Khách mở thỏa thuận và chọn "Thay đổi".
+2.Hệ thống hiển thị điều kiện hiện tại và các trường được đề nghị đổi.
+3.Khách nhập điều kiện mới, lý do và gửi đề nghị.
+4.Hệ thống lưu đề nghị "Chờ phản hồi", giữ nguyên thỏa thuận cũ và thông báo nhà cung cấp.
+5.Nhà cung cấp xem đề nghị so với điều kiện đang có và chọn "Chấp nhận".
+6.Hệ thống áp dụng đúng điều kiện mới mà hai bên đã thống nhất, giữ phiên bản trước để đối chiếu và thông báo kết quả cho khách và nhà cung cấp.
+Luồng thay thế
+•A1 – Hủy thỏa thuận đã xác nhận (tại bước 1): Khách gửi đề nghị hủy và hệ thống giữ thỏa thuận còn hiệu lực. Nhà cung cấp xem xét theo điều kiện hủy đã áp dụng; chỉ khi đủ quyết định cần thiết hệ thống mới ghi “Đã hủy”.
+•A2 – Sửa hoặc rút yêu cầu chưa xác nhận (tại bước 1): Hệ thống kiểm tra trạng thái yêu cầu và điều kiện áp dụng. Nếu khách được quyền rút/sửa trực tiếp thì cập nhật và thông báo nhà cung cấp; nếu còn cần chấp thuận, ghi đề nghị “Chờ phản hồi” và chưa thay đổi yêu cầu gốc.
+•A3 – Nhà cung cấp từ chối (tại bước 5): Hệ thống ghi "Từ chối" kèm lý do, thỏa thuận cũ giữ hiệu lực, thông báo khách.
+•A4 – Nhà cung cấp đề xuất điều kiện khác (tại bước 5): Hệ thống lưu đề xuất, gửi khách xem và giữ thỏa thuận cũ có hiệu lực. Nếu khách chấp thuận đúng bản mới, hệ thống ghi nhận hai bên đã thống nhất và chuyển đến bước 6 để áp dụng; nếu khách chưa đồng ý, đề nghị tiếp tục chờ hoặc kết thúc mà không thay đổi thỏa thuận cũ.
+Luồng ngoại lệ
+•E1 – Điều kiện mới không hợp lệ (tại bước 3): Hệ thống báo lỗi; quay lại bước 3.
+•E2 – Đã có một đề nghị đang chờ trên cùng thỏa thuận (tại bước 1): Hệ thống thông báo và không tạo đề nghị mới.
+•E3 – Yêu cầu/thỏa thuận không còn ở trạng thái được sửa hoặc hủy theo điều kiện áp dụng (tại bước 1): Hệ thống thông báo lý do và không tự thay đổi dữ liệu. Trường hợp đã có kết quả thực hiện được đối chiếu SUC09.01.
+Quy tắc nghiệp vụ
+•BR08.01-1: Gửi đề nghị không tự làm yêu cầu hoặc thỏa thuận cũ hết hiệu lực.
+•BR08.01-2: Thay đổi/hủy thỏa thuận đã xác nhận chỉ có hiệu lực khi đáp ứng quy định áp dụng và hai bên đã thống nhất cùng điều kiện mới, nếu nghiệp vụ cần xác nhận từ cả hai.
+•BR08.01-3: Lịch sử điều kiện cũ được giữ lại.
+•BR08.01-4: Hệ thống không tự suy ra hoàn tiền hay hủy thành công.
+Điểm cần chốt
+•Khi nào khách được tự rút yêu cầu chưa xác nhận mà không cần nhà cung cấp; chính sách hạn hủy, phí và hoàn trả; nhà cung cấp có được chủ động đề nghị đổi/hủy không.
+6.3. SUC09.01 – Ghi nhận kết quả cung cấp dịch vụ
+Mục
+Nội dung
+Mã / Tên
+SUC09.01 – Ghi nhận kết quả cung cấp dịch vụ
+Mục tiêu
+Ghi nhận dịch vụ đã thỏa thuận thực tế được thực hiện đến đâu, theo từng hạng mục.
+Actor chính
+ACT02 – Nhà cung cấp dịch vụ
+Actor tham gia
+ACT01 – Khách du lịch (xem và phản ánh)
+BUC nguồn
+BUC09 (dựa trên thỏa thuận từ SUC07.01/SUC08.01)
+Kích hoạt
+Đến hoặc sau thời điểm phục vụ, nhà cung cấp mở thỏa thuận và chọn "Ghi nhận kết quả".
+Tiền điều kiện
+Nhà cung cấp đã đăng nhập; có thỏa thuận sử dụng dịch vụ thuộc nhà cung cấp ở trạng thái “Đã xác nhận”. Hệ thống kiểm tra thời điểm phục vụ trước khi cho ghi nhận kết quả.
+Hậu điều kiện (thành công)
+Từng hạng mục được ghi nhận theo kết quả thực tế: “Hoàn thành”, “Thực hiện một phần”, “Không thực hiện”, “Khách không đến” hoặc “Chưa xác định”. Trạng thái kiểm tra được theo dõi riêng; chỉ chốt kết quả chung khi đủ căn cứ.
+Hậu điều kiện (không thành công)
+Dữ liệu không hợp lệ hoặc người thực hiện không có quyền; hệ thống không ghi đè kết quả đang có.
+Trạng thái chưa kết thúc
+Một hạng mục có thể có kết quả thực hiện đã ghi nhận nhưng trạng thái xác minh “Chờ kiểm tra”. Trạng thái xác minh không được dùng để ghi đè kết quả thực hiện; kết quả chung chưa chốt khi còn nội dung cần kiểm tra.
+Luồng sự kiện chính
+1.Nhà cung cấp mở danh sách thỏa thuận đã xác nhận của dịch vụ mình quản lý, chọn thỏa thuận cần ghi nhận khi đã đến thời điểm phục vụ.
+2.Hệ thống hiển thị các hạng mục đã thỏa thuận.
+3.Nhà cung cấp ghi nhận từng hạng mục: “Hoàn thành”, “Thực hiện một phần”, “Không thực hiện”, “Khách không đến” hoặc “Chưa xác định”, kèm ghi chú/căn cứ. Trường hợp khách không đến phải phân biệt với việc nhà cung cấp không thực hiện dịch vụ.
+4.Hệ thống kiểm tra quyền và dữ liệu, lưu kết quả từng hạng mục; chỉ tổng hợp kết quả cuối khi đủ căn cứ và không còn trạng thái xác minh “Chờ kiểm tra”. Sau đó thông báo cho khách xem.
+5.Ở lần truy cập sau, khách xem kết quả do nhà cung cấp ghi nhận; nếu thấy khác thực tế, khách gửi phản ánh để đối chiếu. Việc khách chưa phản hồi không tự chứng minh kết quả đã được khách xác nhận.
+6.Hệ thống lưu kết quả thực hiện và phản ánh (nếu có) thành các bản ghi phân biệt; không tự kết luận phản ánh đúng hay sai.
+Luồng thay thế
+•A1 – Khách phản ánh sai khác (tại bước 5): Hệ thống lưu phản ánh và chuyển trạng thái xác minh của hạng mục sang “Chờ kiểm tra”, không sửa/xóa kết quả thực hiện đã ghi nhận; thông báo cho nhà cung cấp để đối chiếu.
+•A2 – Chưa đủ căn cứ (tại bước 3): Nhà cung cấp ghi kết quả thực hiện “Chưa xác định” và trạng thái xác minh “Chờ kiểm tra”. Khi chưa đối chiếu xong, không kết luận hạng mục đã hoàn thành hoặc không thực hiện.
+Luồng ngoại lệ
+•E1 – Người ghi nhận không có quyền với thỏa thuận (tại bước 4): Hệ thống từ chối và không lưu.
+•E2 – Chưa đến thời điểm phục vụ (tại bước 1): Hệ thống thông báo chưa thể ghi nhận kết quả thực hiện và không tạo bản ghi mới.
+•E3 – Thiếu kết quả thực hiện của một hạng mục (tại bước 4): Hệ thống yêu cầu chọn một kết quả hợp lệ; nếu chưa có căn cứ thì ghi “Chưa xác định” và đặt trạng thái “Chờ kiểm tra”.
+•E4 – Thỏa thuận đã chuyển sang “Đã hủy” hoặc không còn “Đã xác nhận” sau khi người dùng mở màn hình (trước bước 4): Hệ thống kiểm tra lại trạng thái hiện hành và không lưu kết quả thực hiện cho thỏa thuận không còn hợp lệ.
+Quy tắc nghiệp vụ
+•BR09.01-1: Thỏa thuận đã xác nhận không chứng minh dịch vụ đã được thực hiện.
+•BR09.01-2: Kết quả thực hiện và trạng thái kiểm tra là hai thông tin khác nhau. Phản ánh của khách chỉ làm phát sinh trạng thái “Chờ kiểm tra”; không tự ghi đè kết quả do nhà cung cấp ghi. Không chốt kết quả chung khi còn hạng mục chưa đủ căn cứ.
+•BR09.01-3: Kết quả thực hiện không thay thế nội dung thỏa thuận gốc; không tự kết luận đã hoàn tiền.
+•BR09.01-4: Chỉ ghi kết quả chung “Hoàn thành” khi toàn bộ hạng mục thực hiện đầy đủ và có căn cứ; “Thực hiện một phần” khi đã thực hiện một phần nhưng chưa hoàn tất toàn bộ; “Không thực hiện” khi không hạng mục nào được cung cấp và đã xác minh đủ. “Khách không đến” được lưu riêng theo hạng mục, không tự tính là dịch vụ đã hoàn thành hoặc mặc định lỗi nhà cung cấp. Nếu còn “Chưa xác định” hay “Chờ kiểm tra” thì kết quả chung chưa được chốt.
+Điểm cần chốt
+•Cần chốt tiêu chí nhận diện “Khách không đến” theo loại dịch vụ, cách phân loại kết quả chung khi có nhiều hạng mục gồm cả khách không đến, thời hạn phản ánh và ai thực hiện đối chiếu. Không tự suy ra hoàn tiền hoặc lỗi của bên nào chỉ từ trạng thái khách không đến.
+7. P07: Tài khoản, xác minh và quyền sử dụng
+7.1. SUC10.01 – Đăng ký tài khoản
+Mục
+Nội dung
+Mã / Tên
+SUC10.01 – Đăng ký tài khoản
+Mục tiêu
+Người dùng tạo tài khoản đúng vai trò (khách du lịch hoặc nhà cung cấp) để dùng các chức năng cần xác định người thực hiện.
+Actor chính
+ACT01 – Khách du lịch; ACT02 – Nhà cung cấp dịch vụ
+Actor tham gia
+Không có
+BUC nguồn
+BUC10
+Kích hoạt
+Người dùng chọn "Đăng ký".
+Tiền điều kiện
+Người dùng chưa đăng nhập.
+Hậu điều kiện (thành công)
+Tài khoản và hồ sơ ban đầu được tạo hợp lệ. Tài khoản nhà cung cấp được ghi trạng thái “Chờ xác minh” để Admin tiếp tục xem xét; chưa được coi là đã xác minh.
+Hậu điều kiện (không thành công)
+Không tạo tài khoản; người dùng được thông báo lý do.
+Luồng sự kiện chính
+1.Người dùng chọn đăng ký.
+2.Hệ thống yêu cầu chọn loại tài khoản: khách du lịch hoặc nhà cung cấp dịch vụ.
+3.Người dùng chọn loại tài khoản.
+4.Hệ thống hiển thị biểu mẫu: họ tên, email, số điện thoại, mật khẩu, xác nhận mật khẩu (nhà cung cấp nhập thêm thông tin cơ sở và hồ sơ phục vụ xác minh).
+5.Người dùng nhập thông tin và gửi.
+6.Hệ thống kiểm tra dữ liệu bắt buộc, định dạng và trùng lặp theo trường định danh được hệ thống quy định.
+7.Hệ thống tạo tài khoản và thông báo đăng ký thành công.
+Luồng thay thế
+•A1 – Đăng ký nhà cung cấp (tại bước 7): Hệ thống đặt trạng thái xác minh "Chờ xác minh", chuyển hồ sơ cho Admin (SUC10.02) và thông báo rằng chỉ được đăng dịch vụ sau khi xác minh.
+•A2 – Người dùng hủy (tại bước 3–5): Hệ thống không lưu; kết thúc.
+Luồng ngoại lệ
+•E1 – Thiếu hoặc sai định dạng (tại bước 6): Hệ thống báo lỗi tại trường sai; quay lại bước 5.
+•E2 – Trùng thông tin định danh theo quy tắc đã xác định (tại bước 6): Hệ thống thông báo mục trùng, không tạo tài khoản mới và yêu cầu sửa hoặc đăng nhập bằng tài khoản đã có.
+•E3 – Mật khẩu không đạt yêu cầu hoặc xác nhận không khớp (tại bước 6): Hệ thống báo lỗi; quay lại bước 5.
+Quy tắc nghiệp vụ
+•BR10.01-1: Khách chỉ xem thông tin công khai không bắt buộc đăng ký.
+•BR10.01-2: Hệ thống không tạo tài khoản trùng theo những trường định danh được nhóm quy định là duy nhất; phạm vi ràng buộc đối với số điện thoại cần đối chiếu FR.
+•BR10.01-3: Đăng ký thành công tài khoản nhà cung cấp không đồng nghĩa đã được xác minh.
+•BR10.01-4: Biểu mẫu công khai không dùng để tạo tài khoản Admin.
+Điểm cần chốt
+•Những trường định danh cần bảo đảm duy nhất; xác thực email/số điện thoại (OTP), hồ sơ nhà cung cấp phải nộp, chủ thể đứng tên và điều kiện mật khẩu. Chưa được tự khẳng định mọi số điện thoại đều bắt buộc duy nhất.
+7.2. SUC10.02 – Xác minh nhà cung cấp dịch vụ
+Mục
+Nội dung
+Mã / Tên
+SUC10.02 – Xác minh nhà cung cấp dịch vụ
+Mục tiêu
+Admin xem xét hồ sơ và ghi nhận kết quả xác minh tư cách nhà cung cấp, làm căn cứ cho phép tham gia cung cấp dịch vụ.
+Actor chính
+ACT03 – Quản trị viên
+Actor tham gia
+ACT02 – Nhà cung cấp dịch vụ (chỉ bổ sung hồ sơ khi Admin yêu cầu; hồ sơ đăng ký ban đầu thuộc SUC10.01). Quyết định xác minh chỉ thuộc ACT03.
+BUC nguồn
+BUC10 + quyết định phạm vi của nhóm
+Kích hoạt
+Admin mở danh sách nhà cung cấp chờ xác minh.
+Tiền điều kiện
+Admin đã đăng nhập và có quyền xác minh nhà cung cấp. Danh sách hồ sơ chờ xác minh có thể trống.
+Hậu điều kiện (thành công)
+Admin ghi nhận quyết định “Đã xác minh”, “Từ chối” hoặc “Cần bổ sung” đối với đúng hồ sơ đang xem; nhà cung cấp nhận được kết quả.
+Hậu điều kiện (không thành công)
+Không ghi quyết định mới; trạng thái và hồ sơ hợp lệ trước đó giữ nguyên.
+Trạng thái chưa kết thúc
+Hồ sơ được yêu cầu bổ sung vẫn chưa xác minh; sau khi nhà cung cấp gửi hồ sơ bổ sung hợp lệ, hệ thống đưa hồ sơ về “Chờ xác minh” để Admin xem xét lại.
+Luồng sự kiện chính
+1.Admin chọn chức năng xác minh nhà cung cấp.
+2.Hệ thống hiển thị danh sách nhà cung cấp "Chờ xác minh" theo thời gian gửi.
+3.Admin chọn một nhà cung cấp.
+4.Hệ thống hiển thị thông tin tài khoản, thông tin cơ sở và hồ sơ đã nộp.
+5.Admin xem xét và chọn "Xác minh".
+6.Hệ thống ghi kết quả "Đã xác minh", người xác minh, thời điểm; mở quyền đăng thông tin dịch vụ (SUC06.01) và thông báo cho nhà cung cấp.
+Luồng thay thế
+•A1 – Admin yêu cầu bổ sung (tại bước 5): Admin nêu rõ phần hồ sơ còn thiếu; hệ thống ghi “Cần bổ sung” và thông báo cho ACT02. Nhà cung cấp gửi hồ sơ bổ sung trong SUC10.02; hệ thống lưu phiên bản mới và chuyển về “Chờ xác minh” để Admin xem xét lại. Việc gửi bổ sung không tự tạo kết quả “Đã xác minh”.
+•A2 – Từ chối (tại bước 5): Admin chọn "Từ chối" và nhập lý do. Hệ thống lưu và thông báo nhà cung cấp; quyền đăng dịch vụ không được mở.
+•A3 – Danh sách trống (tại bước 2): Hệ thống thông báo hiện không có hồ sơ nhà cung cấp đang chờ xác minh; không tạo kết quả xác minh mới.
+Luồng ngoại lệ
+•E1 – Thiếu lý do khi từ chối/yêu cầu bổ sung: Hệ thống yêu cầu nhập lý do.
+•E2 – Hồ sơ đã được xử lý hoặc phiên bản đã thay đổi (tại bước 5): Hệ thống không ghi quyết định trên bản cũ; hiển thị trạng thái hiện hành và yêu cầu Admin mở lại hồ sơ phù hợp.
+Quy tắc nghiệp vụ
+•BR10.02-1: Chỉ nhà cung cấp "Đã xác minh" mới được gửi đăng thông tin dịch vụ.
+•BR10.02-2: Xác minh ban đầu khác với quản lý quyền hoạt động sau xác minh (SUC13.01); không bao gồm phân quyền đại diện giữa nhiều tài khoản.
+•BR10.02-3: Mỗi quyết định xác minh được lưu (người xác minh, thời điểm, kết quả, lý do).
+Điểm cần chốt
+•Tiêu chí xác minh, cách bổ sung hồ sơ, việc Admin xem xét lại hồ sơ mới và mối liên hệ với SUC13.01 (khi Admin thu hồi quyền hoạt động, kết quả xác minh chuyển “Đã thu hồi” và nhà cung cấp phải xác minh lại tại SUC10.02); cần đồng bộ BUC10/FR. ACT02 tham gia SUC10.02 ở bước bổ sung hồ sơ, còn ACT03 chịu trách nhiệm quyết định xác minh.
+7.3. SUC11.01 – Đăng nhập
+Mục
+Nội dung
+Mã / Tên
+SUC11.01 – Đăng nhập
+Mục tiêu
+Người có tài khoản xác thực để sử dụng các chức năng phù hợp vai trò.
+Actor chính
+ACT01 – Khách du lịch; ACT02 – Nhà cung cấp; ACT03 – Quản trị viên
+Actor tham gia
+Không có
+BUC nguồn
+BUC11
+Kích hoạt
+Người dùng chọn "Đăng nhập" hoặc truy cập một chức năng yêu cầu đăng nhập.
+Tiền điều kiện
+Người dùng đã có tài khoản và chưa đăng nhập.
+Hậu điều kiện (thành công)
+Phiên đăng nhập được tạo; người dùng thấy các chức năng theo vai trò và trạng thái tài khoản.
+Hậu điều kiện (không thành công)
+Không tạo phiên; người dùng được thông báo lý do.
+Luồng sự kiện chính
+1.Người dùng chọn đăng nhập.
+2.Hệ thống hiển thị biểu mẫu: tên đăng nhập (email/số điện thoại) và mật khẩu.
+3.Người dùng nhập thông tin và gửi.
+4.Hệ thống kiểm tra thông tin đăng nhập và trạng thái tài khoản.
+5.Hệ thống tạo phiên và chuyển người dùng đến trang chức năng theo vai trò (khách, nhà cung cấp, Admin).
+Luồng thay thế
+•A1 – Nhà cung cấp chưa được xác minh, đang bị tạm đình chỉ hoặc đã bị thu hồi quyền hoạt động (tại bước 5): Nếu tài khoản hợp lệ, hệ thống vẫn cho đăng nhập nhưng chỉ mở phần việc được phép theo trạng thái đó, như xem/bổ sung hồ sơ, gửi giải trình (SUC13.01), xử lý thỏa thuận đã xác nhận (SUC08.01, SUC09.01); không cho gửi đăng dịch vụ ở SUC06.01.
+•A2 – Đăng nhập từ chức năng yêu cầu xác thực (tại bước 5): Hệ thống đưa người dùng quay lại chức năng đó.
+Luồng ngoại lệ
+•E1 – Sai tên đăng nhập hoặc mật khẩu (tại bước 4): Hệ thống thông báo chung "thông tin đăng nhập không đúng"; quay lại bước 3.
+•E2 – Tài khoản đã ngừng sử dụng (tại bước 4): Hệ thống từ chối tạo phiên đăng nhập và thông báo tài khoản không còn hoạt động. Không tự thêm trạng thái “Bị khóa” khi chưa có quy tắc hoặc chức năng tương ứng.
+•E3 – Bỏ trống trường (tại bước 3): Hệ thống yêu cầu nhập đủ.
+Quy tắc nghiệp vụ
+•BR11.01-1: Đăng nhập thành công không có nghĩa được làm mọi nghiệp vụ; quyền phụ thuộc vai trò và trạng thái (ví dụ trạng thái xác minh).
+•BR11.01-2: Người chỉ xem thông tin công khai không phải đăng nhập.
+•BR11.01-3: Tài khoản Admin không được tạo qua SUC10.01.
+Điểm cần chốt
+•Chốt số lần nhập sai, thời gian phiên, quên mật khẩu, cách cấp tài khoản Admin. Chưa đặc tả cơ chế khóa tài khoản; nếu có, cần bổ sung yêu cầu và trạng thái trước khi dùng trong luồng đăng nhập.
+7.4. SUC12.01 – Cập nhật hồ sơ người dùng
+Mục
+Nội dung
+Mã / Tên
+SUC12.01 – Cập nhật hồ sơ người dùng
+Mục tiêu
+Người dùng giữ thông tin hồ sơ của chính mình (liên hệ, giới thiệu) đúng với thực tế.
+Actor chính
+ACT01 – Khách du lịch; ACT02 – Nhà cung cấp dịch vụ
+Actor tham gia
+Không có
+BUC nguồn
+BUC12
+Kích hoạt
+Người dùng chọn "Hồ sơ của tôi".
+Tiền điều kiện
+Người dùng đã đăng nhập (SUC11.01).
+Hậu điều kiện (thành công)
+Các mục hợp lệ được cập nhật; các mục khác giữ nguyên.
+Hậu điều kiện (không thành công)
+Hồ sơ giữ nguyên nội dung trước đó.
+Luồng sự kiện chính
+1.Người dùng mở hồ sơ của mình.
+2.Hệ thống hiển thị thông tin hiện tại, đánh dấu mục được sửa và mục chỉ xem (ví dụ vai trò, trạng thái xác minh).
+3.Người dùng chọn chỉnh sửa, thay đổi các mục cần thiết và chọn lưu.
+4.Hệ thống kiểm tra người sửa có quyền với từng mục và giá trị mới có hợp lệ theo quy tắc của trường đó hay không.
+5.Hệ thống lưu các mục thay đổi và thông báo cập nhật thành công.
+Luồng thay thế
+•A1 – Người dùng hủy chỉnh sửa (tại bước 3): Hệ thống bỏ thay đổi và hiển thị lại thông tin cũ.
+•A2 – Cần bổ sung hồ sơ xác minh nhà cung cấp: Người dùng chuyển sang bước cung cấp hồ sơ bổ sung thuộc SUC10.02. Việc sửa thông tin hồ sơ thông thường tại SUC12.01 không tự thay đổi trạng thái xác minh.
+Luồng ngoại lệ
+•E1 – Dữ liệu sai định dạng hoặc bỏ trống mục bắt buộc (tại bước 4): Hệ thống báo lỗi; quay lại bước 3.
+•E2 – Trường định danh phải duy nhất đã được tài khoản khác sử dụng (tại bước 4): Hệ thống thông báo và không ghi thay đổi chưa hợp lệ; người dùng chỉnh sửa ở bước 3.
+Quy tắc nghiệp vụ
+•BR12.01-1: Người dùng chỉ sửa hồ sơ của chính mình; SUC không bao gồm Admin sửa hồ sơ người khác.
+•BR12.01-2: Sửa hồ sơ không tạo ra hoặc thay đổi vai trò, quyền nhà cung cấp, quyền quản trị hay kết quả xác minh.
+•BR12.01-3: SUC không bao gồm xóa hồ sơ (ngừng tài khoản thuộc SUC14.01).
+Điểm cần chốt
+•Danh sách trường hồ sơ được sửa; trường định danh nào phải duy nhất; trường hợp cần xác thực lại; trường hợp thay đổi thông tin cơ sở làm phát sinh yêu cầu xác minh lại (xử lý ở SUC10.02).
+7.5. SUC13.01 – Quản lý quyền hoạt động của nhà cung cấp
+Mục
+Nội dung
+Mã / Tên
+SUC13.01 – Quản lý quyền hoạt động của nhà cung cấp
+Mục tiêu
+Admin tạm đình chỉ, khôi phục hoặc thu hồi quyền hoạt động của một nhà cung cấp đã được xác minh khi có căn cứ, để chỉ nhà cung cấp đủ điều kiện mới tiếp tục đăng dịch vụ và nhận yêu cầu đặt.
+Actor chính
+ACT03 – Quản trị viên
+Actor tham gia
+ACT02 – Nhà cung cấp dịch vụ (nhận quyết định; gửi giải trình hoặc đề nghị khôi phục khi bị tạm đình chỉ). Quyết định chỉ thuộc ACT03.
+BUC nguồn
+BUC13 (định nghĩa lại ở V04, thay nội dung “quản lý quyền đại diện” cũ). Đây là phương án nhóm tự xây dựng; cần viết lại BUC13 và bổ sung FR.
+Kích hoạt
+Admin mở chức năng quản lý quyền hoạt động để xem một nhà cung cấp, hoặc mở danh sách nhà cung cấp cần xem xét (có giải trình mới, đến hạn đình chỉ, có phản ánh đã đối chiếu).
+Tiền điều kiện
+Admin đã đăng nhập và có quyền quản lý nhà cung cấp. Nhà cung cấp được chọn đã qua xác minh (SUC10.02). Trạng thái hiện hành được kiểm tra lại trước khi ghi quyết định.
+Hậu điều kiện (thành công)
+Quyền hoạt động chuyển đúng sang “Đang hoạt động”, “Tạm đình chỉ” hoặc “Đã thu hồi”, kèm lý do, căn cứ, người quyết định và thời điểm. Trạng thái tiếp nhận và trạng thái công bố của các dịch vụ liên quan được cập nhật đồng bộ; nhà cung cấp và khách có yêu cầu bị ảnh hưởng được thông báo.
+Hậu điều kiện (không thành công)
+Không ghi quyết định mới; quyền hoạt động, dịch vụ, yêu cầu và thỏa thuận giữ nguyên trạng thái trước đó.
+Trạng thái chưa kết thúc
+Giải trình hoặc đề nghị khôi phục của nhà cung cấp ở trạng thái “Chờ Admin xem xét”; việc gửi không tự khôi phục quyền hoạt động.
+Luồng sự kiện chính – Tạm đình chỉ quyền hoạt động
+1.Admin chọn chức năng quản lý quyền hoạt động của nhà cung cấp.
+2.Hệ thống hiển thị danh sách nhà cung cấp đã xác minh cùng quyền hoạt động hiện hành; có thể lọc nhóm cần xem xét.
+3.Admin chọn một nhà cung cấp.
+4.Hệ thống hiển thị thông tin nhà cung cấp, kết quả xác minh, lịch sử quyết định, các dịch vụ, yêu cầu đặt đang chờ, thỏa thuận đã xác nhận chưa thực hiện và các phản ánh liên quan.
+5.Admin chọn “Tạm đình chỉ”, nhập lý do, căn cứ và thời hạn dự kiến (nếu có).
+6.Hệ thống hiển thị hệ quả: nhà cung cấp không được gửi đăng/cập nhật dịch vụ; các dịch vụ chuyển “Không tiếp nhận yêu cầu mới”; yêu cầu đặt đang chờ không thể được xác nhận; thỏa thuận đã xác nhận vẫn giữ hiệu lực. Admin xác nhận lần cuối.
+7.Hệ thống kiểm tra lại trạng thái hiện hành rồi áp dụng đồng thời: ghi quyền hoạt động “Tạm đình chỉ”; chuyển các dịch vụ sang “Không tiếp nhận yêu cầu mới”; chuyển yêu cầu đặt “Chờ phản hồi” sang “Không tiếp tục” và thông báo cho khách liên quan; lưu quyết định và thông báo cho nhà cung cấp.
+Luồng thay thế
+•A1 – Khôi phục (tại bước 5, nhà cung cấp đang “Tạm đình chỉ”): Admin chọn “Khôi phục” và ghi căn cứ (ví dụ đã xem giải trình, vi phạm đã được khắc phục). Hệ thống ghi “Đang hoạt động”, mở lại quyền gửi đăng dịch vụ và chỉ chuyển lại “Tiếp nhận yêu cầu mới” cho những dịch vụ bị đổi trạng thái do lần đình chỉ này. Yêu cầu đã “Không tiếp tục” không tự mở lại.
+•A2 – Thu hồi quyền hoạt động (tại bước 5): Admin chọn “Thu hồi” và ghi lý do, căn cứ. Ngoài các hệ quả của tạm đình chỉ, hệ thống ngừng công bố các dịch vụ của nhà cung cấp (không xóa nội dung và lịch sử) và chuyển kết quả xác minh sang “Đã thu hồi”. Muốn hoạt động lại, nhà cung cấp phải được xác minh lại qua SUC10.02.
+•A3 – Nhà cung cấp gửi giải trình: Khi đang “Tạm đình chỉ”, ACT02 mở thông báo quyết định, nhập giải trình kèm tài liệu và gửi. Hệ thống lưu ở trạng thái “Chờ Admin xem xét” và đưa nhà cung cấp vào danh sách cần xem xét ở bước 2; quyền hoạt động không đổi cho đến khi Admin quyết định.
+•A4 – Đến hạn tạm đình chỉ: Hệ thống đưa nhà cung cấp vào danh sách cần xem xét và nhắc Admin; không tự khôi phục khi Admin chưa quyết định.
+•A5 – Giữ nguyên quyết định (sau A3 hoặc A4): Admin ghi kết quả xem xét và lý do; hệ thống thông báo cho nhà cung cấp, quyền hoạt động không đổi.
+Luồng ngoại lệ
+•E1 – Thiếu lý do hoặc căn cứ (tại bước 5, A1, A2, A5): Hệ thống yêu cầu nhập đủ trước khi ghi quyết định.
+•E2 – Thao tác không phù hợp với trạng thái hiện hành (tại bước 5), ví dụ khôi phục nhà cung cấp đang hoạt động, tạm đình chỉ nhà cung cấp đã bị thu hồi, hoặc chọn nhà cung cấp chưa xác minh: Hệ thống không cho thực hiện và hướng dẫn nghiệp vụ phù hợp (chưa xác minh → SUC10.02).
+•E3 – Trạng thái đã thay đổi trong lúc xem (Admin khác đã quyết định hoặc nhà cung cấp đã ngừng tài khoản) (tại bước 7): Hệ thống không ghi quyết định trên dữ liệu cũ và hiển thị trạng thái hiện hành.
+•E4 – Không cập nhật đồng bộ được (tại bước 7): Hệ thống khôi phục trạng thái trước thao tác, không báo thành công và thông báo để Admin thử lại.
+Quy tắc nghiệp vụ
+•BR13.01-1: Chỉ ACT03 được tạm đình chỉ, khôi phục hoặc thu hồi quyền hoạt động. ACT02 chỉ được gửi giải trình; việc gửi không làm thay đổi quyền.
+•BR13.01-2: Mỗi quyết định phải có lý do và căn cứ. Hệ thống lưu lịch sử (người quyết định, thời điểm, trạng thái trước/sau), không ghi đè quyết định cũ.
+•BR13.01-3: Tác động theo trạng thái: “Đang hoạt động” – đủ quyền theo SUC06.01, SUC07.01; “Tạm đình chỉ” – không gửi đăng/cập nhật dịch vụ, dịch vụ vẫn hiển thị kèm “Không tiếp nhận yêu cầu mới”; “Đã thu hồi” – như tạm đình chỉ và dịch vụ ngừng công bố.
+•BR13.01-4: Tạm đình chỉ hoặc thu hồi không xóa tài khoản, nội dung dịch vụ hay lịch sử và không tự hủy thỏa thuận đã xác nhận. Nhà cung cấp vẫn đăng nhập được để thực hiện, ghi nhận kết quả (SUC09.01) và xử lý đề nghị đổi/hủy (SUC08.01) của các thỏa thuận này.
+•BR13.01-5: Phân biệt với SUC10.02 (xác minh ban đầu), SUC06.02 (duyệt từng nội dung dịch vụ) và SUC14.01 (chủ tài khoản tự ngừng). Mỗi nhà cung cấp dùng một tài khoản; SUC13.01 không bao gồm phân quyền đại diện giữa nhiều tài khoản.
+Điểm cần chốt
+•Đây là phương án nhóm tự xây dựng để thay BUC13 cũ: cần viết lại BUC13, bổ sung FR và xác nhận Admin có thêm nhiệm vụ thứ ba.
+•Danh mục căn cứ được tạm đình chỉ/thu hồi (thông tin sai lệch, giấy tờ hết hạn, vi phạm cam kết, phản ánh đã đối chiếu ở SUC09.01…), thời hạn đình chỉ tối đa và thời hạn Admin xem giải trình.
+•Cách xử lý yêu cầu đặt đang chờ khi đình chỉ (phương án hiện tại: chuyển “Không tiếp tục”) và việc có buộc xử lý xong thỏa thuận đã xác nhận trước khi thu hồi hay không.
+7.6. SUC14.01 – Ngừng sử dụng tài khoản
+Mục
+Nội dung
+Mã / Tên
+SUC14.01 – Ngừng sử dụng tài khoản
+Mục tiêu
+Chủ tài khoản ngừng sử dụng hệ thống sau khi các yêu cầu, thỏa thuận còn liên quan được xử lý theo quy định.
+Actor chính
+ACT01 – Khách du lịch; ACT02 – Nhà cung cấp dịch vụ
+Actor tham gia
+Không có
+BUC nguồn
+BUC14 (đối chiếu cả SUC04.01, SUC04.02 về đồng hành và SUC07.01, SUC08.01, SUC09.01 về dịch vụ). Các quy tắc đồng bộ trạng thái cần bổ sung vào FR.
+Kích hoạt
+Chủ tài khoản chọn "Ngừng sử dụng tài khoản".
+Tiền điều kiện
+Chủ tài khoản đã đăng nhập.
+Hậu điều kiện (thành công)
+Tài khoản chuyển “Đã ngừng sử dụng”; phiên đăng nhập kết thúc, lịch sử cần giữ được bảo toàn. Với ACT01, nhu cầu đồng hành dừng công bố và các đề nghị kết nối đang chờ không thể được chấp nhận; với ACT02, dịch vụ chuyển “Không tiếp nhận yêu cầu mới” nhưng nội dung đã duyệt không tự bị xóa. Các cập nhật liên quan chỉ có hiệu lực khi hoàn tất ngừng tài khoản thành công.
+Hậu điều kiện (không thành công)
+Tài khoản vẫn hoạt động. Yêu cầu ngừng không làm ẩn nhu cầu đồng hành, không thay đổi trạng thái tiếp nhận dịch vụ và không tự làm mất hiệu lực các thỏa thuận hoặc đề nghị đang có; người dùng được thông báo lý do.
+Trạng thái chưa kết thúc
+Nếu còn nghĩa vụ cần giải quyết, yêu cầu ngừng chưa có hiệu lực; người dùng thực hiện xử lý liên quan trước khi gửi lại. Không tự lưu “Chờ xử lý” nếu FR chưa xác nhận có cơ chế quản lý yêu cầu ngừng theo nhiều phiên.
+Luồng sự kiện chính
+1.Chủ tài khoản chọn ngừng sử dụng tài khoản.
+2.Hệ thống yêu cầu chủ tài khoản xác thực lại theo phương thức được hỗ trợ để tránh xử lý nhầm.
+3.Chủ tài khoản hoàn tất bước xác thực lại và xác nhận mong muốn ngừng sử dụng.
+4.Hệ thống chỉ kiểm tra điều kiện ngừng, chưa thay đổi bất cứ trạng thái nào: (a) với khách, kiểm tra đề nghị kết nối đang chờ, thỏa thuận đồng hành đang có hiệu lực và các nghĩa vụ từ dịch vụ đã đặt; (b) với nhà cung cấp, kiểm tra yêu cầu đặt đang chờ, thỏa thuận cung cấp chưa hoàn tất và các kết quả cần đối chiếu. Nếu còn thỏa thuận đồng hành có hiệu lực, hướng dẫn xử lý việc rút/ngừng qua SUC04.02 trước; nếu còn nghĩa vụ dịch vụ, xử lý qua SUC08.01/SUC09.01 theo điều kiện hiện hành. Nhà cung cấp hiện được mô hình hóa bằng một tài khoản, không giả định nhiều tài khoản đại diện.
+5.Chỉ khi các điều kiện ngừng được đáp ứng, hệ thống hiển thị rõ hệ quả của việc ngừng: không tiếp nhận kết nối mới, không tiếp nhận đặt dịch vụ mới nếu là nhà cung cấp, bảo toàn lịch sử và không tự hủy các nghĩa vụ đã phát sinh; yêu cầu xác nhận lần cuối.
+6.Chủ tài khoản xác nhận.
+7.Sau khi xác nhận, hệ thống áp dụng đồng thời các cập nhật liên quan: ngừng tài khoản và kết thúc phiên; nếu ACT01 thì ngừng công bố nhu cầu, không cho chấp nhận đề nghị kết nối còn chờ và thông báo cho bên liên quan; nếu ACT02 thì chuyển các dịch vụ sang “Không tiếp nhận yêu cầu mới”. Chỉ báo thành công khi các cập nhật đã hoàn tất nhất quán; nếu một phần thất bại phải khôi phục trạng thái trước đó và thông báo lỗi. Không xóa nội dung dịch vụ đã được Admin duyệt hoặc lịch sử nghiệp vụ cần giữ.
+Luồng thay thế
+•A1 – Còn quan hệ hoặc nghĩa vụ chưa xử lý (tại bước 4): Hệ thống nêu rõ thỏa thuận đồng hành đang có hiệu lực, đề nghị kết nối cần đối chiếu, yêu cầu đặt đang chờ, thỏa thuận dịch vụ chưa thực hiện hoặc kết quả cung cấp đang chờ kiểm tra. Trường hợp nghĩa vụ cần giải quyết thì chưa ngừng tài khoản; đề nghị kết nối chỉ đang chờ không tự tạo nghĩa vụ đồng hành. Mọi dữ liệu hiện hành giữ nguyên; người dùng được hướng dẫn xử lý đúng SUC liên quan rồi yêu cầu ngừng lại.
+•A2 – Chủ tài khoản hủy (tại bước 3 hoặc 6): Hệ thống không thay đổi gì; kết thúc.
+Luồng ngoại lệ
+•E1 – Xác thực lại thất bại (tại bước 3): Hệ thống từ chối và không tiếp tục.
+•E2 – Không thể cập nhật đồng bộ tài khoản và dữ liệu liên quan (tại bước 7): Hệ thống không báo ngừng thành công khi mới cập nhật một phần; khôi phục về trạng thái hợp lệ trước thao tác, giữ nhật ký lỗi và thông báo người dùng thử lại.
+Quy tắc nghiệp vụ
+•BR14.01-1: Chỉ chủ tài khoản được yêu cầu ngừng tài khoản của mình.
+•BR14.01-2: Chưa đủ điều kiện thì tài khoản chưa được xem là đã ngừng.
+•BR14.01-3: Ngừng tài khoản không tự xóa lịch sử đặt dịch vụ, thỏa thuận hoặc thông tin phải giữ theo quy định.
+•BR14.01-4: Trong mô hình hiện tại, mỗi nhà cung cấp sử dụng một tài khoản. Khi tài khoản ngừng thành công, dịch vụ thuộc nhà cung cấp không nhận yêu cầu đặt mới; đây là trạng thái vận hành, không phải sửa nội dung đã Admin duyệt và không có nghĩa ngừng kinh doanh. Nhu cầu đồng hành của tài khoản khách ngừng được dừng công bố; đề nghị đang chờ không thể chấp thuận nếu một tài khoản đã ngừng. Không tự xóa lịch sử hoặc hủy thỏa thuận đã xác nhận.
+•BR14.01-5: Kiểm tra điều kiện trước khi cập nhật, và chỉ hoàn tất ngừng khi trạng thái tài khoản, công bố nhu cầu và tiếp nhận dịch vụ được cập nhật nhất quán. Trường hợp còn thỏa thuận đồng hành có hiệu lực phải xử lý theo SUC04.02; thỏa thuận dịch vụ có nghĩa vụ chưa hoàn tất phải xử lý theo các SUC dịch vụ liên quan.
+Điểm cần chốt
+•Cần đồng bộ BUC14/FR về: cách xử lý thỏa thuận đồng hành khi ngừng tài khoản; số phận đề nghị kết nối còn chờ; nghĩa vụ dịch vụ còn tồn; trạng thái “Không tiếp nhận yêu cầu mới”; thời hạn lưu dữ liệu và khả năng kích hoạt lại. Quy tắc cập nhật đồng thời giữa tài khoản và nội dung liên quan là yêu cầu thiết kế đề xuất, cần đưa vào FR và kiểm thử. Khi nhà cung cấp đang bị tạm đình chỉ (SUC13.01), việc ngừng tài khoản vẫn phải đáp ứng các điều kiện trên.

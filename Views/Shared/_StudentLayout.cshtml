@@ -1,0 +1,68 @@
+@inject IConfiguration Configuration
+@{
+ var controller=ViewContext.RouteData.Values["controller"]?.ToString()??"";
+ var action=ViewContext.RouteData.Values["action"]?.ToString()??"";
+ var logged=User.Identity?.IsAuthenticated==true;
+ var traveler=User.IsInRole("Traveler"); var provider=User.IsInRole("Provider"); var admin=User.IsInRole("Admin");
+ var accountName=User.Identity?.Name??"";
+ var initials=string.Concat(accountName.Split(' ',StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(x=>x[0]));
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+ <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+ <meta name="theme-color" content="#f6f3ed"/>
+ <title>@ViewData["Title"] · Tự Túc</title>
+ <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+ <link rel="stylesheet" href="~/css/app.css" asp-append-version="true"/>
+ <link rel="stylesheet" href="~/css/fieldnotes.css" asp-append-version="true"/>
+ <link rel="stylesheet" href="~/css/travel-workspace.css" asp-append-version="true"/>
+</head>
+<body class="@(logged?"is-member":"is-public")">
+<a class="skip-link" href="#main-content">Đến nội dung chính</a>
+<header class="site-header">
+ <a class="brand" href="/" aria-label="Tự Túc · Quản lý chuyến đi"><svg viewBox="0 0 40 40" width="38" height="38" fill="none" aria-hidden="true"><path d="M7 31V12l8-5 9 5 9-5v20l-9 6-9-5-8 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M15 7v21m9-16v21" stroke="currentColor" stroke-width="1.2"/><path d="m11 23 8-7 10 5" stroke="#b44e35" stroke-width="2"/><circle cx="29" cy="21" r="2.5" fill="#b44e35"/></svg><span class="brand-word">Tự Túc<small>QUẢN LÝ CHUYẾN ĐI</small></span></a>
+ <nav class="top-nav" aria-label="Điều hướng chính">
+  <a class="@(controller=="Dashboard"&&action=="Index"?"current":"")" href="/">Tổng quan</a>
+  <a class="@(controller=="Home"&&action!="Index"?"current":"")" href="/Home/Search">Tra cứu điểm đến</a>
+  <a class="@(controller=="Marketplace"?"current":"")" href="/Marketplace">Tìm dịch vụ</a>
+  <a class="@(controller=="Community"?"current":"")" href="/Community">Đồng hành</a>
+ </nav>
+ <div class="account">@if(logged){<a class="account-link" href="/Account/Profile"><span class="avatar">@initials</span><span>@accountName<small>@(provider?"Nhà cung cấp":admin?"Quản trị viên":"Khách du lịch")</small></span></a>}else{<a class="login-link" href="/Account/Login">Đăng nhập <partial name="_TravelIcon" model='@("arrow")'/></a>}</div>
+</header>
+@if(Configuration.GetValue<bool>("Demo:Enabled")){
+ <div class="demo-bar"><span><i></i> Không gian demo <span class="demo-help">· Chuyển vai trò để trải nghiệm luồng xử lý</span></span><div>
+ <form asp-controller="Account" asp-action="LoginDemo" method="post"><button class="@(traveler?"selected":"")" name="role" value="Traveler">Khách du lịch</button></form>
+ <form asp-controller="Account" asp-action="LoginDemo" method="post"><button class="@(provider?"selected":"")" name="role" value="Provider">Nhà cung cấp</button></form>
+ <form asp-controller="Account" asp-action="LoginDemo" method="post"><button class="@(admin?"selected":"")" name="role" value="Admin">Quản trị</button></form>
+ </div></div>
+}
+@if(TempData["Message"] is string message){<div class="notice flash-message" role="status"><partial name="_TravelIcon" model='@("check")'/>@message<button type="button" aria-label="Đóng thông báo" onclick="this.parentElement.remove()">×</button></div>}
+<div class="@(logged?"app-shell":"public-shell")">
+ @if(logged){
+ <aside class="sidebar" aria-label="Chức năng tài khoản">
+  <div class="sidebar-label">@(provider?"Không gian cung cấp":admin?"Không gian quản trị":"Chuyến đi của bạn")</div>
+  <a class="@(controller=="Dashboard"&&action=="Index"?"active":"")" href="/Dashboard"><partial name="_TravelIcon" model='@("home")'/>Tổng quan</a>
+  @if(traveler){
+   <a class="@(controller=="Journey"&&action!="Incidents"&&action!="Incident"?"active":"")" href="/Journey"><partial name="_TravelIcon" model='@("calendar")'/>Kế hoạch của tôi</a>
+   <a class="@(controller=="Marketplace"&&(action=="Requests"||action=="Request")?"active":"")" href="/Marketplace/Requests"><partial name="_TravelIcon" model='@("bag")'/>Yêu cầu dịch vụ</a>
+   <a class="@(controller=="Journey"&&(action=="Incidents"||action=="Incident")?"active":"")" href="/Journey/Incidents"><partial name="_TravelIcon" model='@("alert")'/>Tình huống phát sinh</a>
+   <a class="@(controller=="Community"?"active":"")" href="/Community/Dashboard"><partial name="_TravelIcon" model='@("people")'/>Kết nối đồng hành</a>
+  }
+  @if(provider){<a class="@(controller=="Provider"&&action!="Requests"&&action!="Request"?"active":"")" href="/Provider"><partial name="_TravelIcon" model='@("map")'/>Dịch vụ của tôi</a><a class="@(controller=="Provider"&&(action=="Requests"||action=="Request")?"active":"")" href="/Provider/Requests"><partial name="_TravelIcon" model='@("bag")'/>Yêu cầu của khách</a><a href="/Verification/Mine"><partial name="_TravelIcon" model='@("note")'/>Hồ sơ xác minh</a><a href="/Governance/Mine"><partial name="_TravelIcon" model='@("shield")'/>Quyền hoạt động</a>}
+  @if(admin){<a href="/Admin"><partial name="_TravelIcon" model='@("check")'/>Duyệt dịch vụ</a><a href="/Verification"><partial name="_TravelIcon" model='@("shield")'/>Xác minh nhà cung cấp</a><a href="/Governance"><partial name="_TravelIcon" model='@("people")'/>Quyền nhà cung cấp</a><a href="/Dashboard/Audit"><partial name="_TravelIcon" model='@("note")'/>Nhật ký thao tác</a>}
+  <div class="sidebar-label sidebar-secondary">Tài khoản</div>
+  <a class="@(controller=="Dashboard"&&action=="Notifications"?"active":"")" href="/Dashboard/Notifications"><partial name="_TravelIcon" model='@("bell")'/>Thông báo</a><a class="@(controller=="Account"?"active":"")" href="/Account/Profile"><partial name="_TravelIcon" model='@("user")'/>Hồ sơ tài khoản</a>
+
+  <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form"><button class="link-button"><partial name="_TravelIcon" model='@("logout")'/>Đăng xuất</button></form>
+ </aside>
+ }
+ <main id="main-content">@RenderBody()</main>
+</div>
+<partial name="_ConfirmationDialog"/>
+<footer class="site-footer"><span class="footer-brand">Tự Túc <span>·</span> Quản lý chuyến đi</span><span>Hệ thống hỗ trợ khách du lịch tự túc <span class="footer-separator">/</span> Dữ liệu minh họa</span></footer>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts",required:false)
+</body>
+</html>

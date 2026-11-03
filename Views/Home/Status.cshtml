@@ -1,0 +1,3 @@
+@model int
+@{ViewData["Title"]=Model==404?"Không tìm thấy trang":"Chưa thể hoàn tất yêu cầu";}
+<section class="section narrow"><div class="empty"><span class="eyebrow">MÃ PHẢN HỒI @Model</span><h1>@(Model==404?"Điểm dừng này không tồn tại.":Model==429?"Bạn thao tác hơi nhanh.":"Chưa thể hoàn tất yêu cầu.")</h1><p>@(Model==404?"Nội dung có thể đã thay đổi hoặc bạn không có quyền xem. Hãy quay lại hành trình của mình.":Model==429?"Chờ một phút rồi thử lại nhé.":"Kiểm tra lại thông tin hoặc tải lại trang trước khi thử lại.")</p><a class="button" href="/Dashboard">Về tổng quan</a><a class="secondary" href="/">Khám phá điểm đến</a></div></section>

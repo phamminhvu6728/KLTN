@@ -1,0 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using TuTuc.Data;
+using TuTuc.Models;
+namespace TuTuc.Services;
+public class PrivateDocumentStore(AppDbContext db,IWebHostEnvironment env,ILogger<PrivateDocumentStore> log,IConfiguration configuration) {
+ readonly string directory=configuration["Storage:UploadDirectory"]??Path.Combine(env.ContentRootPath,"UploadFiles");
+ public async Task<(List<PrivateDocument> Documents,string Error)> StageAsync(int ownerId,string scope,IEnumerable<IFormFile>? files,bool required=true){
+ var input=(files??[]).ToList();if(scope is not ("Verification" or "Explanation" or "Avatar"))return([],"Nhóm tài liệu không hợp lệ.");if(input.Count>5||required&&input.Count==0||scope=="Avatar"&&input.Count>1)return([],"Cần từ 1 đến 5 tệp cho mỗi lần gửi; ảnh đại diện chỉ nhận một tệp.");
+ var validated=new List<(IFormFile File,string Extension,string Mime)>();foreach(var file in input){if(file.Length<=0||file.Length>5*1024*1024)return([],"Mỗi tệp phải có dữ liệu và tối đa 5 MB.");var extension=Path.GetExtension(file.FileName).ToLowerInvariant();var expected=extension switch{".pdf"=>"application/pdf",".jpg" or ".jpeg"=>"image/jpeg",".png"=>"image/png",_=>null};if(expected is null||scope=="Avatar"&&expected=="application/pdf")return([],"Chỉ nhận PDF, JPG hoặc PNG; ảnh đại diện chỉ nhận JPG/PNG.");
+ var header=new byte[8];await using(var stream=file.OpenReadStream()){var read=await stream.ReadAtLeastAsync(header,header.Length,throwOnEndOfStream:false);var valid=expected switch{"application/pdf"=>read>=5&&header[0]==37&&header[1]==80&&header[2]==68&&header[3]==70&&header[4]==45,"image/jpeg"=>read>=3&&header[0]==255&&header[1]==216&&header[2]==255,"image/png"=>read==8&&header.SequenceEqual(new byte[]{137,80,78,71,13,10,26,10}),_=>false};if(!valid)return([],"Nội dung tệp không khớp định dạng PDF/JPG/PNG đã chọn.");}validated.Add((file,extension,expected));}
+ var documents=new List<PrivateDocument>();Directory.CreateDirectory(directory);try{foreach(var (file,extension,mime) in validated){var key=Guid.NewGuid().ToString("N")+extension;var name=new string(Path.GetFileName(file.FileName).Where(c=>!char.IsControl(c)).ToArray());if(name.Length>255)name=name[^255..];var document=new PrivateDocument{OwnerId=ownerId,Scope=scope,OriginalName=name,StorageKey=key,Mime=mime,Size=file.Length};documents.Add(document);await using var output=new FileStream(GetPath(document),FileMode.CreateNew,FileAccess.Write,FileShare.None);await file.CopyToAsync(output);}return(documents,"");}catch(Exception e)when(e is IOException or UnauthorizedAccessException){CleanupFiles(documents);log.LogError(e,"Không thể lưu tài liệu tải lên.");return([],"Chưa thể lưu tệp. Vui lòng thử lại.");}
+ }
+ public void CleanupFiles(IEnumerable<PrivateDocument> documents){foreach(var d in documents)try{var path=GetPath(d);if(File.Exists(path))File.Delete(path);}catch(Exception e)when(e is IOException or UnauthorizedAccessException){log.LogWarning(e,"Không thể dọn tệp tải lên {StorageKey}",d.StorageKey);}}
+ public Task<PrivateDocument?> FindForReadAsync(int userId,bool admin,int id)=>db.PrivateDocuments.AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id&&(admin||x.OwnerId==userId));
+ public string GetPath(PrivateDocument d){if(string.IsNullOrEmpty(d.StorageKey)||Path.GetFileName(d.StorageKey)!=d.StorageKey||d.StorageKey.Contains('/')||d.StorageKey.Contains('\\'))throw new InvalidOperationException("Tên lưu tệp không hợp lệ.");return Path.Combine(directory,d.StorageKey);}
+}
+
