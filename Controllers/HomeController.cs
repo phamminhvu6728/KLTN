@@ -18,7 +18,7 @@ public class HomeController(AppDbContext db, TravelSearchManager search) : Contr
     }
         public async Task<IActionResult> Search(TravelSearchInput input)
     {
-        if(input.MinPrice.HasValue&&input.MaxPrice.HasValue&&input.MinPrice>input.MaxPrice)ModelState.AddModelError("MinPrice","Giá từ không được lớn hơn giá đến.");
+        if(input.MinPrice.HasValue&&input.MaxPrice.HasValue&&input.MinPrice>input.MaxPrice)ModelState.AddModelError("MinPrice", "0101-01: Tiêu chí tìm kiếm không hợp lệ");
         if(input.Type!=null&&!new[]{"","Địa điểm","Lưu trú","Ăn uống","Di chuyển","Trải nghiệm"}.Contains(input.Type))ModelState.AddModelError("Type","Loại thông tin không hợp lệ.");
         if(!new[]{"name","price-asc","price-desc"}.Contains(input.Sort))ModelState.AddModelError("Sort","Cách sắp xếp không hợp lệ.");
         var vm=new TravelSearchVm{Input=input};if(ModelState.IsValid)vm.Items=await search.Search(input);return View(vm);
