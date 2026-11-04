@@ -17,13 +17,14 @@
  <link rel="stylesheet" href="~/css/app.css" asp-append-version="true"/>
  <link rel="stylesheet" href="~/css/fieldnotes.css" asp-append-version="true"/>
  <link rel="stylesheet" href="~/css/interface.css" asp-append-version="true"/>
+ @if(logged){<link rel="stylesheet" href="~/css/member.css" asp-append-version="true"/>}
 </head>
-<body class="@(logged?"is-member":"is-public") ui-v2" data-page="@controller.ToLowerInvariant()" data-ui-version="2026-11-04-v2">
+<body class="@(logged?"is-member":"is-public") ui-v2" data-page="@controller.ToLowerInvariant()" data-ui-version="2026-11-04-v3">
 <a class="skip-link" href="#main-content">Đến nội dung chính</a>
 <header class="site-header">
  <a class="brand" href="/" aria-label="Tự Túc · Quản lý chuyến đi"><svg viewBox="0 0 40 40" width="38" height="38" fill="none" aria-hidden="true"><path d="M7 31V12l8-5 9 5 9-5v20l-9 6-9-5-8 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M15 7v21m9-16v21" stroke="currentColor" stroke-width="1.2"/><path d="m11 23 8-7 10 5" stroke="#b44e35" stroke-width="2"/><circle cx="29" cy="21" r="2.5" fill="#b44e35"/></svg><span class="brand-word">Tự Túc<small>QUẢN LÝ CHUYẾN ĐI</small></span></a>
  <nav class="top-nav" aria-label="Điều hướng chính">
-  <a class="@((controller=="Dashboard"||controller=="Home")&&action=="Index"?"current":"")" href="/">Tổng quan</a>
+  @if(!logged){<a class="@(controller=="Home"&&action=="Index"?"current":"")" href="/">Tổng quan</a>}
   <a class="@(controller=="Home"&&action!="Index"?"current":"")" href="/Home/Search">Tra cứu điểm đến</a>
   <a class="@(controller=="Marketplace"?"current":"")" href="/Marketplace">Tìm dịch vụ</a>
   <a class="@(controller=="Community"?"current":"")" href="/Community">Đồng hành</a>
@@ -38,7 +39,7 @@
  </div></div>
 }
 @if(TempData["Message"] is string message){<div class="notice flash-message" role="status"><partial name="_TravelIcon" model='@("check")'/>@message<button type="button" aria-label="Đóng thông báo" onclick="this.parentElement.remove()">×</button></div>}
-<div class="@(logged?"app-shell":"public-shell")">
+<div class="@(logged?"app-shell member-shell":"public-shell")">
  @if(logged){
  <aside class="sidebar" aria-label="Chức năng tài khoản">
   <div class="sidebar-label">@(provider?"Không gian cung cấp":admin?"Không gian quản trị":"Chuyến đi của bạn")</div>

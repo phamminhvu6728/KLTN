@@ -1,5 +1,6 @@
 export const base=process.env.DEMO_URL||'http://localhost:5080';
 export const decode=s=>s.replace(/&#x([\da-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16))).replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(+n)).replaceAll('&amp;','&').replaceAll('&quot;','"').replaceAll('&lt;','<').replaceAll('&gt;','>');
+export const requestStatus=html=>decode(html.match(/<article\b[^>]*data-request-status="([^"]*)"/)?.[1]||"");
 export const forms=html=>[...html.matchAll(/<form\b[^>]*>[\s\S]*?<\/form>/gi)].map(m=>m[0]);
 export const formFor=(html,action)=>forms(html).find(f=>f.includes('action="'+action+'"'))||'';
 export const field=(html,name)=>decode(html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"','i'))?.[1]||'');

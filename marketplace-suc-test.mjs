@@ -7,7 +7,7 @@ const field=(html,name)=>decode(html.match(new RegExp('name="'+name+'"[^>]*value
 const formFor=(html,action)=>forms(html).find(x=>new RegExp('action="[^\"]*\\/'+action+'(?:[?\"])','i').test(x));
 const articles=html=>[...html.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/gi)].map(x=>x[0]);
 const articleFor=(html,text)=>articles(html).find(x=>decode(x).includes(text));
-const state=html=>decode(html.match(/<span class="badge-status">([\s\S]*?)<\/span>/)?.[1]);
+const state=html=>decode(html.match(/<article\b[^>]*data-request-status="([^"]*)"/)?.[1]??html.match(/<span\b[^>]*class="[^\"]*\bbadge-status\b[^\"]*"[^>]*>([\s\S]*?)<\/span>/)?.[1]);
 function allHidden(form){const fields={};for(const m of form.matchAll(/<input\b[^>]*type="hidden"[^>]*>/gi)){const k=m[0].match(/name="([^"]+)"/)?.[1],v=m[0].match(/value="([^"]*)"/)?.[1];if(k)fields[k]=decode(v??'');}return fields;}
 class Client {
  cookies={};async request(path,body){const multipart=body instanceof FormData;const r=await fetch(base+path,{method:body?'POST':'GET',headers:{Cookie:Object.entries(this.cookies).map(([k,v])=>k+'='+v).join('; '),...(body&&!multipart?{'Content-Type':'application/x-www-form-urlencoded'}:{})},body:body?multipart?body:new URLSearchParams(body):undefined,redirect:'manual'});for(const c of r.headers.getSetCookie()){const kv=c.split(';')[0],i=kv.indexOf('=');this.cookies[kv.slice(0,i)]=kv.slice(i+1);}return{status:r.status,html:await r.text(),location:r.headers.get('location')};}

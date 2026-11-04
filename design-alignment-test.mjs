@@ -1,4 +1,4 @@
-import {Client,field,hidden,formFor} from './tests/http-client.mjs';
+import {Client,field,hidden,formFor,requestStatus} from './tests/http-client.mjs';
 let count=0;const check=(condition,message)=>{if(!condition)throw Error(message);console.log('PASS '+(++count)+' '+message);};
 const a=new Client(),b=new Client(),provider=new Client(),stamp=Date.now();
 const day=n=>new Date(Date.now()+(n*24+7)*3600000).toISOString().slice(0,10);
@@ -37,7 +37,7 @@ r=await provider.post('/Provider/Respond',{...respond,...terms,Date:day(8),Total
 page=await a.get(requestPath);check(page.includes('Đề xuất khác')&&page.includes('Điều kiện phiên bản 2'),'4.225 new conditions are versioned and await the customer');
 let reply=hidden(formFor(page,'/Marketplace/ReplyOffer'));
 r=await a.post('/Marketplace/ReplyOffer',{...reply,accept:'true'},page);check(r.status===302&&r.location===requestPath,'4.226 customer accepts the exact proposed version and returns to its detail');
-page=await a.get(requestPath);check(page.includes('<span class="badge-status">Đã xác nhận</span>')&&!page.includes('Chờ NCC xác nhận cuối'),'4.226 acceptance directly confirms without an extra provider step');
+page=await a.get(requestPath);check(requestStatus(page)==='Đã xác nhận'&&!page.includes('Chờ NCC xác nhận cuối'),'4.226 acceptance directly confirms without an extra provider step');
 check((await provider.get('/Provider/Request/'+requestId)).includes('khach@demo.vn'),'4.224 confirmed agreement reveals customer contact to its provider');
 r=await provider.post('/Provider/Respond',{...respond,decision:'Đã xác nhận'},'/Provider/Request/'+requestId);check(r.status===409&&r.errorCode==='0701-05','4.225 a previously handled version cannot be confirmed again');
 r=await a.post('/Marketplace/Book',posted,preview);check(r.status===302&&r.location===requestPath,'4.220 replay returns the existing request');
@@ -59,8 +59,8 @@ r=await provider.post('/Provider/Respond',{...respond,...terms,Date:day(8),Total
 page=await a.get(revisionPath);const oldOffer=hidden(formFor(page,'/Marketplace/ReplyOffer')),edit=hidden(formFor(page,'/Marketplace/EditPending'));
 r=await a.post('/Marketplace/EditPending',{...terms,...edit,Date:day(9),Total:900000,Note:'Khách gửi lại điều kiện'},page);check(r.status===302,'4.222 customer may revise an unconfirmed counteroffer');
 r=await a.post('/Marketplace/ReplyOffer',{...oldOffer,accept:'true'},page);check(r.status===409&&r.errorCode==='0701-05','4.222 obsolete counteroffer cannot be accepted after customer revision');
-page=await provider.get('/Provider/Request/'+revisionId);check(page.includes('Điều kiện phiên bản 3')&&page.includes('<span class="badge-status">Chờ phản hồi</span>'),'4.222 revision increments conditions and awaits provider again');
-respond=hidden(formFor(page,'/Provider/Respond'));r=await provider.post('/Provider/Respond',{...respond,decision:'Đã xác nhận'},page);check(r.status===302&&(await a.get(revisionPath)).includes('<span class="badge-status">Đã xác nhận</span>'),'4.225 provider can accept the customer revised version');
+page=await provider.get('/Provider/Request/'+revisionId);check(page.includes('Điều kiện phiên bản 3')&&requestStatus(page)==='Chờ phản hồi','4.222 revision increments conditions and awaits provider again');
+respond=hidden(formFor(page,'/Provider/Respond'));r=await provider.post('/Provider/Respond',{...respond,decision:'Đã xác nhận'},page);check(r.status===302&&requestStatus(await a.get(revisionPath))==='Đã xác nhận','4.225 provider can accept the customer revised version');
 for(const [actor,path,marker] of [[a,'/Journey','data-trip-id='],[a,'/Marketplace/Requests','id="request-'],[provider,'/Provider/Requests','id="request-']]){
  r=await actor.request(path+'?trang=2147483647');check(r.status===200&&!r.html.includes(marker),'4.9.1 an out-of-range positive page stays empty without overflow at '+path);
 }

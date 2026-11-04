@@ -1,4 +1,4 @@
-import {Client,field,hidden,formFor} from './tests/http-client.mjs';
+import {Client,field,hidden,formFor,requestStatus} from './tests/http-client.mjs';
 let count=0;function check(value,message){if(!value)throw Error(message);console.log('PASS '+(++count)+' '+message);}
 const stamp=Date.now(),day=n=>new Date(Date.now()+(n*24+7)*3600000).toISOString().slice(0,10);
 const a=new Client(),b=new Client(),provider=new Client();
@@ -50,5 +50,5 @@ html=await provider.get('/Provider/Request/'+bookingId);const respond=hidden(for
 await provider.post('/Provider/Respond',{...respond,decision:'Đề xuất khác',Date:day(8),People:'abc',Guests:2,Total:200000,reason:'Invalid quantity binding'},html);check((await a.get('/Marketplace/Request/'+bookingId)).includes('Chờ phản hồi'),'invalid provider numeric input cannot silently become the default quantity');
 html=await a.get('/Marketplace/Request/'+bookingId);await a.post('/Marketplace/EditPending',{id:bookingId,...hidden(formFor(html,'/Marketplace/EditPending')),Date:day(8),People:'abc',Guests:2,Total:200000},html);check((await a.get('/Marketplace/Request/'+bookingId)).includes('Điều kiện phiên bản 1'),'invalid customer numeric edit cannot create a new version');
 html=await provider.get('/Provider/Request/'+bookingId);await provider.post('/Provider/Respond',{...respond,decision:'Từ chối',reason:''},html);check((await a.get('/Marketplace/Request/'+bookingId)).includes('Chờ phản hồi'),'empty rejection reason leaves booking pending');
-html=await provider.get('/Provider/Request/'+bookingId);await provider.post('/Provider/Respond',{...hidden(formFor(html,'/Provider/Respond')),decision:'Đã xác nhận'},html);check((await a.get('/Marketplace/Request/'+bookingId)).includes('<span class="badge-status">Đã xác nhận</span>'),'provider acceptance completes the exact customer agreement');
+html=await provider.get('/Provider/Request/'+bookingId);await provider.post('/Provider/Respond',{...hidden(formFor(html,'/Provider/Respond')),decision:'Đã xác nhận'},html);check(requestStatus(await a.get('/Marketplace/Request/'+bookingId))==='Đã xác nhận','provider acceptance completes the exact customer agreement');
 console.log('FOCUS DEEP TEST PASSED: '+count+' assertions');
