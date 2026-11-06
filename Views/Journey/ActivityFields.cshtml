@@ -1,15 +1,90 @@
 @model ActivityEditor
-@{var x=Model.Input;var source=x.SourceType=="Manual"?"Manual":x.SourceType+":"+x.SourceId;}
+@{
+    var x = Model.Input;
+    var source = x.SourceType == "Manual" ? "Manual" : x.SourceType + ":" + x.SourceId;
+}
+
 <form asp-action="Activity" method="post" class="activity-form" data-testid="activity-form-@x.Id">
- <input type="hidden" name="Id" value="@x.Id"/><input type="hidden" name="TripId" value="@Model.Trip.Id"/><input type="hidden" name="Version" value="@x.Version"/>
- <label>Chọn mục tham khảo hoặc tự nhập<select name="SourceSelection"><option value="Manual" selected="@(source=="Manual")">Tự nhập hoạt động</option><optgroup label="Địa điểm">@foreach(var place in Model.Places){<option value="Place:@place.Id" selected="@(source=="Place:"+place.Id)">@place.Name</option>}</optgroup><optgroup label="Dịch vụ đã công bố">@foreach(var service in Model.Services){<option value="Service:@service.Id" selected="@(source=="Service:"+service.Id)">@service.Name</option>}</optgroup></select></label>
- <label>Nội dung hoạt động<input name="Title" value="@x.Title" maxlength="300" placeholder="Để trống nếu dùng tên địa điểm hoặc dịch vụ"/></label>
- <div class="form-grid"><label>Bắt đầu<input name="Start" type="datetime-local" value="@x.Start.ToString("yyyy-MM-ddTHH:mm")" required/></label><label>Kết thúc<input name="End" type="datetime-local" value="@x.End.ToString("yyyy-MM-ddTHH:mm")" required/></label></div>
- <div class="form-grid"><label>Khung giờ<select name="HasTime"><option value="true" selected="@x.HasTime">Có giờ cụ thể</option><option value="false" selected="@(!x.HasTime)">Chưa xác định giờ / cả ngày</option></select></label><label>Thứ tự trong ngày
- @if(x.Id==0){<input type="text" value="Tự xếp cuối ngày" readonly aria-describedby="activity-order-help-0"/><small id="activity-order-help-0" class="field-hint">Thêm xong, mở Chỉnh sửa hoạt động để đổi thứ tự.</small>}
- else{<input name="SortOrder" type="number" min="1" value="@Math.Max(1,x.SortOrder)" required/><small class="field-hint">Số nhỏ được xếp trước trong cùng ngày.</small>}
- </label></div>
- <div class="form-grid"><label>Địa điểm / địa chỉ<input name="Location" value="@x.Location" maxlength="300"/></label><label>Chi phí dự kiến (đ)<input name="Cost" type="number" min="0" max="1000000000" value="@x.Cost.ToString("0",System.Globalization.CultureInfo.InvariantCulture)"/></label></div>
- <label>Ghi chú<textarea name="Notes" maxlength="1000">@x.Notes</textarea></label>
- <button class="button">@(x.Id==0?"Thêm vào lịch trình":"Lưu hoạt động")</button>
+    @* Mã hoạt động, kế hoạch và phiên bản được server kiểm tra lại khi POST. *@
+    <input type="hidden" name="Id" value="@x.Id" />
+    <input type="hidden" name="TripId" value="@Model.Trip.Id" />
+    <input type="hidden" name="Version" value="@x.Version" />
+
+    <label>
+        Chọn mục tham khảo hoặc tự nhập
+        <select name="SourceSelection">
+            <option value="Manual" selected="@(source == "Manual")">Tự nhập hoạt động</option>
+            <optgroup label="Địa điểm">
+                @foreach (var place in Model.Places)
+                {
+                    <option value="Place:@place.Id" selected="@(source == "Place:" + place.Id)">@place.Name</option>
+                }
+            </optgroup>
+            <optgroup label="Dịch vụ đã công bố">
+                @foreach (var service in Model.Services)
+                {
+                    <option value="Service:@service.Id" selected="@(source == "Service:" + service.Id)">@service.Name</option>
+                }
+            </optgroup>
+        </select>
+    </label>
+
+    <label>
+        Nội dung hoạt động
+        <input name="Title" value="@x.Title" maxlength="300"
+               placeholder="Để trống nếu dùng tên địa điểm hoặc dịch vụ" />
+    </label>
+
+    <div class="form-grid">
+        <label>
+            Bắt đầu
+            <input name="Start" type="datetime-local" value="@x.Start.ToString("yyyy-MM-ddTHH:mm")" required />
+        </label>
+        <label>
+            Kết thúc
+            <input name="End" type="datetime-local" value="@x.End.ToString("yyyy-MM-ddTHH:mm")" required />
+        </label>
+    </div>
+
+    <div class="form-grid">
+        <label>
+            Khung giờ
+            <select name="HasTime">
+                <option value="true" selected="@x.HasTime">Có giờ cụ thể</option>
+                <option value="false" selected="@(!x.HasTime)">Chưa xác định giờ / cả ngày</option>
+            </select>
+        </label>
+        <label>
+            Thứ tự trong ngày
+            @if (x.Id == 0)
+            {
+                <input type="text" value="Tự xếp cuối ngày" readonly aria-describedby="activity-order-help-0" />
+                <small id="activity-order-help-0" class="field-hint">Thêm xong, mở Chỉnh sửa hoạt động để đổi thứ tự.</small>
+            }
+            else
+            {
+                <input name="SortOrder" type="number" min="1" value="@Math.Max(1, x.SortOrder)" required />
+                <small class="field-hint">Số nhỏ được xếp trước trong cùng ngày.</small>
+            }
+        </label>
+    </div>
+
+    <div class="form-grid">
+        <label>
+            Địa điểm / địa chỉ
+            <input name="Location" value="@x.Location" maxlength="300" />
+        </label>
+        <label>
+            Chi phí dự kiến (đ)
+            <input name="Cost" type="number" min="0" max="1000000000"
+                   value="@x.Cost.ToString("0", System.Globalization.CultureInfo.InvariantCulture)" />
+        </label>
+    </div>
+
+    <label>
+        Ghi chú
+        <textarea name="Notes" maxlength="1000">@x.Notes</textarea>
+    </label>
+
+    <button class="button">@(x.Id == 0 ? "Thêm vào lịch trình" : "Lưu hoạt động")</button>
 </form>

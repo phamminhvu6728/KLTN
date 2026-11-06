@@ -16,6 +16,13 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
-  <ItemGroup><Compile Remove="tests/**/*.cs" /><Content Remove="tests/**" /><None Remove="tests/**" /></ItemGroup>
+  <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
+    <Content Remove="tests/**" />
+    <None Remove="tests/**" />
+    <Compile Remove="tester-tests/**/*.cs" />
+    <Content Remove="tester-tests/**" />
+    <None Remove="tester-tests/**" />
+  </ItemGroup>
 </Project>
 

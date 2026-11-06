@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+
 namespace TuTuc.Models;
+
 public partial class Account
 {
     public int Id { get; set; }
@@ -13,6 +15,7 @@ public partial class Account
     public bool ProviderVerified { get; set; }
     public string SessionStamp { get; set; } = Guid.NewGuid().ToString("N");
 }
+
 public partial class Place
 {
     public int Id { get; set; }
@@ -23,31 +26,47 @@ public partial class Place
     public string Image { get; set; } = "";
     public decimal Price { get; set; }
 }
+
+// Kế hoạch: dữ liệu lưu tại bảng Trips.
 public partial class Trip
 {
+    // Định danh và chủ sở hữu.
     public int Id { get; set; }
     public int OwnerId { get; set; }
+
+    // Thông tin chung và khoảng ngày chuyến đi.
     public string Name { get; set; } = "";
     public string Destination { get; set; } = "";
     public decimal? Budget { get; set; }
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
+
     public string Status { get; set; } = "Nháp";
-    [Timestamp] public byte[] Version { get; set; } = [];
+
+    // SQL Server tự sinh rowversion; dùng kiểm soát cập nhật đồng thời.
+    [Timestamp]
+    public byte[] Version { get; set; } = [];
+
+    // Quan hệ 1:N với các hoạt động của kế hoạch.
     public List<TripActivity> Activities { get; set; } = [];
 }
+
+// Hoạt động: dữ liệu lưu tại bảng Activities; TripId liên kết về kế hoạch.
 public partial class TripActivity
 {
     public int Id { get; set; }
     public int TripId { get; set; }
+
     public string Title { get; set; } = "";
     public string Location { get; set; } = "";
     public string Notes { get; set; } = "";
+
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
     public decimal? Cost { get; set; }
 }
+
 public partial class Companion
 {
     public int Id { get; set; }
@@ -60,6 +79,7 @@ public partial class Companion
     public decimal Budget { get; set; }
     public int People { get; set; } = 2;
 }
+
 public partial class Connection
 {
     public int Id { get; set; }
@@ -68,6 +88,7 @@ public partial class Connection
     public string Message { get; set; } = "";
     public string Status { get; set; } = "Chờ phản hồi";
 }
+
 public partial class TravelService
 {
     public int Id { get; set; }
@@ -82,6 +103,7 @@ public partial class TravelService
     public bool IsAccepting { get; set; } = true;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
+
 public partial class Booking
 {
     public int Id { get; set; }
@@ -98,8 +120,11 @@ public partial class Booking
     public int People { get; set; }
     public decimal Total { get; set; }
     public string Status { get; set; } = "Chờ phản hồi";
-    [Timestamp] public byte[] Version { get; set; } = [];
+
+    [Timestamp]
+    public byte[] Version { get; set; } = [];
 }
+
 public partial class Incident
 {
     public int Id { get; set; }
@@ -111,4 +136,3 @@ public partial class Incident
     public string Resolution { get; set; } = "";
     public string Status { get; set; } = "Đang xử lý";
 }
-
