@@ -1,6 +1,16 @@
 /* Bổ sung sau buổi A14: mức độ phù hợp đồng hành, hỗ trợ tại điểm đến, trang địa điểm.
    Dùng lại biến màu của interface.css để đồng nhất với các trang có sẵn. */
 
+/* Mức độ phù hợp đồng hành */
+.match { display: flex; align-items: center; gap: 10px; margin: 8px 0 4px; }
+.match-score { font-weight: 700; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #e7f2ec; color: #2f6b50; }
+.match-score.low { background: #f3f1ea; color: #776a4a; }
+.match-reasons { list-style: none; padding: 0; margin: 4px 0 10px; font-size: 13px; color: var(--muted, #61717d); }
+.match-reasons li::before { content: "✓ "; color: #37765b; }
+.trip-suggest { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: -6px 0 18px; font-size: 14px; }
+.trip-suggest a { padding: 6px 12px; border: 1px solid var(--line, #dfe6e9); border-radius: 999px; background: #fff; }
+.trip-suggest a:hover { border-color: var(--primary, #23657a); }
+
 /* Danh sách gọn dùng chung: dịch vụ gần, địa điểm liên quan */
 .near-list { display: grid; gap: 12px; margin-bottom: 26px; }
 .near-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--line, #dfe6e9); border-radius: 12px; padding: 16px 18px; }

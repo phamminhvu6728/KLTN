@@ -6,11 +6,15 @@ using Microsoft.AspNetCore.DataProtection;
 using TuTuc.Models;
 using TuTuc.Services;
 namespace TuTuc.Controllers;
-public class CommunityController(CommunityManager manager,IDataProtectionProvider protection):Controller
+public class CommunityController(CommunityManager manager,IDataProtectionProvider protection,CompanionSuggestion suggestion):Controller
 {
  int Me=>int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out var id)?id:0;
  IDataProtector Protector=>protection.CreateProtector("Community.DemandPreview.v1");
- public async Task<IActionResult> Index(CommunitySearch input){if(input.From>input.To)ModelState.AddModelError("To","Ngày kết thúc tìm kiếm phải từ ngày bắt đầu.");if(!string.IsNullOrEmpty(input.TravelStyle)&&!CommunityManager.TravelStyles.Contains(input.TravelStyle))ModelState.AddModelError("TravelStyle","Hình thức đi không hợp lệ.");if(!ModelState.IsValid){Response.StatusCode=400;return View(new CommunityPage{Search=input,Me=Me,IsTraveler=User.IsInRole("Traveler")});}return View(await manager.Browse(Me,input));}
+ public async Task<IActionResult> Index(CommunitySearch input){if(input.From>input.To)ModelState.AddModelError("To","Ngày kết thúc tìm kiếm phải từ ngày bắt đầu.");if(!string.IsNullOrEmpty(input.TravelStyle)&&!CommunityManager.TravelStyles.Contains(input.TravelStyle))ModelState.AddModelError("TravelStyle","Hình thức đi không hợp lệ.");if(!ModelState.IsValid){Response.StatusCode=400;return View(new CommunityPage{Search=input,Me=Me,IsTraveler=User.IsInRole("Traveler")});}var page=await manager.Browse(Me,input);
+  // Mục tiêu 3: chấm mức độ phù hợp theo tiêu chí và gợi ý tiêu chí từ chuyến đi sắp tới.
+  await suggestion.Apply(page,Me);
+  if(page.IsTraveler)ViewBag.MyTrips=await suggestion.UpcomingTrips(Me);
+  return View(page);}
  public async Task<IActionResult> Details(int id){var card=await manager.Detail(Me,id);return card==null?NotFound():View(card);}
  [Authorize(Roles="Traveler")]public async Task<IActionResult> Dashboard()=>View(await manager.Dashboard(Me));
  [Authorize(Roles="Traveler")]public async Task<IActionResult> Compose(int? id){if(!id.HasValue)return View(new DemandInput());var input=await manager.Edit(Me,id.Value);return input==null?NotFound():View(input);}
