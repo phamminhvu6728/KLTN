@@ -30,8 +30,9 @@ builder.Services.AddScoped<PrivateDocumentStore>();
 builder.Services.AddScoped<VerificationManager>();
 builder.Services.AddScoped<GovernanceManager>();
 builder.Services.AddScoped<TravelSearchManager>();
-// Bổ sung sau A14: gợi ý đồng hành.
+// Bổ sung sau A14: gợi ý đồng hành, hỗ trợ tại điểm đến.
 builder.Services.AddScoped<CompanionSuggestion>();
+builder.Services.AddScoped<OnTripManager>();
 builder.Services.AddHostedService<GovernanceReminderService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(o =>

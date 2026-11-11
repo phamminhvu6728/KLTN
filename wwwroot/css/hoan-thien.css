@@ -11,6 +11,20 @@
 .trip-suggest a { padding: 6px 12px; border: 1px solid var(--line, #dfe6e9); border-radius: 999px; background: #fff; }
 .trip-suggest a:hover { border-color: var(--primary, #23657a); }
 
+/* Hỗ trợ tại điểm đến */
+.on-trip-picker { margin-bottom: 8px; }
+.on-trip-picker select { min-width: 320px; max-width: 100%; }
+.on-trip-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 28px; align-items: start; }
+.on-trip-grid aside .panel { margin-top: 0; }
+.on-trip-question { font-size: 20px; margin: 4px 0 14px; }
+.day-list { list-style: none; padding: 0; margin: 12px 0 0; }
+.day-list li { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px dashed var(--line, #dfe6e9); }
+.day-list li:last-child { border-bottom: 0; }
+.day-list small { color: var(--muted, #61717d); }
+.need-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.need-tabs a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line, #dfe6e9); background: #fff; color: #3a5868; font-size: 14px; }
+.need-tabs a.active { background: var(--primary, #23657a); border-color: var(--primary, #23657a); color: #fff; }
+
 /* Danh sách gọn dùng chung: dịch vụ gần, địa điểm liên quan */
 .near-list { display: grid; gap: 12px; margin-bottom: 26px; }
 .near-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--line, #dfe6e9); border-radius: 12px; padding: 16px 18px; }
@@ -23,6 +37,13 @@
 .place-related { display: grid; grid-template-columns: 1fr minmax(240px, 320px); gap: 32px; margin-top: 36px; }
 .nearby-place { display: grid; padding: 12px 0; border-bottom: 1px solid var(--line, #dfe6e9); color: inherit; }
 .nearby-place small { color: var(--muted, #61717d); }
+
+@media (max-width: 860px) {
+    .on-trip-grid, .place-related { grid-template-columns: 1fr; }
+    .near-item { flex-direction: column; align-items: flex-start; }
+    .near-actions { justify-content: flex-start; }
+    .on-trip-picker select { min-width: 0; width: 100%; }
+}
 
 /* Form gửi yêu cầu: căn đáy các ô để nhãn dài xuống dòng vẫn không làm lệch ô nhập */
 .ui-v2 .market-terms-grid { align-items: end; }

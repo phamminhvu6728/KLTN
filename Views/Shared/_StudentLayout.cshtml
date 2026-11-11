@@ -46,9 +46,10 @@
   <div class="sidebar-label">@(provider?"Không gian cung cấp":admin?"Không gian quản trị":"Chuyến đi của bạn")</div>
   <a class="@(controller=="Dashboard"&&action=="Index"?"active":"")" href="/Dashboard"><partial name="_TravelIcon" model='@("home")'/>Tổng quan</a>
   @if(traveler){
-   <a class="@(controller=="Journey"&&action!="Incidents"&&action!="Incident"?"active":"")" href="/Journey"><partial name="_TravelIcon" model='@("calendar")'/>Kế hoạch của tôi</a>
+   <a class="@(controller=="Journey"&&action!="Incidents"&&action!="Incident"&&action!="OnTrip"?"active":"")" href="/Journey"><partial name="_TravelIcon" model='@("calendar")'/>Kế hoạch của tôi</a>
    <a class="@(controller=="Marketplace"&&(action=="Requests"||action=="Request")?"active":"")" href="/Marketplace/Requests"><partial name="_TravelIcon" model='@("bag")'/>Yêu cầu dịch vụ</a>
    <a class="@(controller=="Journey"&&(action=="Incidents"||action=="Incident")?"active":"")" href="/Journey/Incidents"><partial name="_TravelIcon" model='@("alert")'/>Tình huống phát sinh</a>
+   <a class="@(controller=="Journey"&&action=="OnTrip"?"active":"")" href="/Journey/OnTrip"><partial name="_TravelIcon" model='@("pin")'/>Hỗ trợ tại điểm đến</a>
    <a class="@(controller=="Community"?"active":"")" href="/Community/Dashboard"><partial name="_TravelIcon" model='@("people")'/>Kết nối đồng hành</a>
   }
   @if(provider){<a class="@(controller=="Provider"&&action!="Requests"&&action!="Request"?"active":"")" href="/Provider"><partial name="_TravelIcon" model='@("map")'/>Dịch vụ của tôi</a><a class="@(controller=="Provider"&&(action=="Requests"||action=="Request")?"active":"")" href="/Provider/Requests"><partial name="_TravelIcon" model='@("bag")'/>Yêu cầu của khách</a><a class="@(controller=="Verification"?"active":"")" href="/Verification/Mine"><partial name="_TravelIcon" model='@("note")'/>Hồ sơ xác minh</a><a class="@(controller=="Governance"?"active":"")" href="/Governance/Mine"><partial name="_TravelIcon" model='@("shield")'/>Quyền hoạt động</a>}
