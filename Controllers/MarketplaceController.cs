@@ -9,7 +9,7 @@ namespace TuTuc.Controllers;
 public class MarketplaceController(AppDbContext db,MarketplaceManager manager):Controller
 {
     int Me=>int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    public async Task<IActionResult> Index(string? q,string? category,decimal? minPrice,decimal? maxPrice)
+    public async Task<IActionResult> Index(string? q,string? category,decimal? minPrice,decimal? maxPrice,string? sort,string? dest)
     {
         var model=new MarketCatalogVm{Query=q??"",Category=category??"",MinPrice=minPrice,MaxPrice=maxPrice};
         if(minPrice<0||maxPrice<0||minPrice>maxPrice){model.Error="Khoảng giá chưa hợp lệ: giá từ phải nhỏ hơn hoặc bằng giá đến.";return View(model);}
@@ -17,7 +17,16 @@ public class MarketplaceController(AppDbContext db,MarketplaceManager manager):C
         if(!string.IsNullOrWhiteSpace(q))query=query.Where(x=>x.Name.Contains(q)||x.Location.Contains(q));
         if(!string.IsNullOrWhiteSpace(category))query=query.Where(x=>x.Category==category);
         if(minPrice.HasValue)query=query.Where(x=>x.Price>=minPrice);if(maxPrice.HasValue)query=query.Where(x=>x.Price<=maxPrice);
-        model.Services=await query.OrderByDescending(x=>x.Id).ToListAsync();ViewBag.Providers=await db.Accounts.Where(x=>x.Role=="Provider").ToDictionaryAsync(x=>x.Id);return View(model);
+        model.Services=await query.OrderByDescending(x=>x.Id).ToListAsync();
+        // Lọc theo điểm đến bằng cùng quy tắc với form lập kế hoạch (DestinationFilter): chọn Đà Lạt thì có cả dịch vụ ở Đồi chè Cầu Đất.
+        ViewBag.Dest=dest??"";
+        ViewBag.Destinations=await db.Services.Where(x=>x.ApprovalStatus=="Đã duyệt"&&x.IsPublished).Select(x=>x.Location).Distinct().OrderBy(x=>x).ToListAsync();
+        if(!string.IsNullOrWhiteSpace(dest)){var places=await db.Places.AsNoTracking().ToListAsync();model.Services=DestinationFilter.ServicesAt(model.Services,DestinationFilter.PlacesAt(places,dest),dest);}
+        ViewBag.Sort=sort??"";
+        model.Services=sort switch{
+            "price-asc"=>model.Services.OrderBy(x=>x.Price).ToList(),
+            "price-desc"=>model.Services.OrderByDescending(x=>x.Price).ToList(),
+            _=>model.Services};ViewBag.Providers=await db.Accounts.Where(x=>x.Role=="Provider").ToDictionaryAsync(x=>x.Id);return View(model);
     }
     public async Task<IActionResult> Details(int id,DateTime? date)
     {

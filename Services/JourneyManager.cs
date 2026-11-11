@@ -42,6 +42,15 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
         if (t.Budget.HasValue && total > t.Budget.Value)
             warnings.Add($"Tổng dự kiến vượt ngân sách {(total - t.Budget):N0} ₫.");
 
+        // Chỉ gợi ý địa điểm, dịch vụ thuộc điểm đến của chuyến đi (DestinationFilter).
+        // Mục mà hoạt động cũ đang dùng vẫn được giữ trong danh sách để khi sửa không bị mất nguồn.
+        var allPlaces = await db.Places.AsNoTracking().OrderBy(x => x.Name).ToListAsync();
+        var allServices = await PublishedServices();
+        var usedPlaces = t.Activities.Where(a => a.PlaceId.HasValue).Select(a => a.PlaceId!.Value).ToHashSet();
+        var usedServices = t.Activities.Where(a => a.TravelServiceId.HasValue).Select(a => a.TravelServiceId!.Value).ToHashSet();
+        var placesHere = DestinationFilter.PlacesAt(allPlaces, t.Destination);
+        var servicesHere = DestinationFilter.ServicesAt(allServices, placesHere, t.Destination);
+
         return new()
         {
             Trip = t,
@@ -51,14 +60,35 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
                 .Where(x => x.TripId == id && x.OwnerId == user)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(),
-            Places = await db.Places.AsNoTracking().OrderBy(x => x.Name).ToListAsync(),
-            Services = await db.Services
-                .AsNoTracking()
-                .Where(x => x.ApprovalStatus == "Đã duyệt" && x.IsPublished &&
-                    db.Accounts.Any(a => a.Id == x.OwnerId && a.ProviderStatus != "Đã thu hồi"))
-                .OrderBy(x => x.Name)
-                .ToListAsync()
+            Places = allPlaces.Where(p => placesHere.Contains(p) || usedPlaces.Contains(p.Id)).ToList(),
+            Services = allServices.Where(s => servicesHere.Contains(s) || usedServices.Contains(s.Id)).ToList()
         };
+    }
+
+    Task<List<TravelService>> PublishedServices() => db.Services
+        .AsNoTracking()
+        .Where(x => x.ApprovalStatus == "Đã duyệt" && x.IsPublished &&
+            db.Accounts.Any(a => a.Id == x.OwnerId && a.ProviderStatus != "Đã thu hồi"))
+        .OrderBy(x => x.Name)
+        .ToListAsync();
+
+    // Thêm địa điểm/dịch vụ từ trang tra cứu vào kế hoạch: chỉ đưa ra các kế hoạch cùng điểm đến với mục đó.
+    public async Task<(List<Trip> Trips, string SourceName)> TripsForSource(int user, string sourceType, int sourceId)
+    {
+        var places = await db.Places.AsNoTracking().ToListAsync();
+        var place = sourceType == "Place" ? places.FirstOrDefault(x => x.Id == sourceId) : null;
+        var service = sourceType == "Service" ? (await PublishedServices()).FirstOrDefault(x => x.Id == sourceId) : null;
+        if (place == null && service == null)
+            return ([], "");
+
+        var trips = (await List(user)).Where(t =>
+        {
+            var here = DestinationFilter.PlacesAt(places, t.Destination);
+            return place != null
+                ? here.Any(p => p.Id == place.Id)
+                : DestinationFilter.ServicesAt([service!], here, t.Destination).Count > 0;
+        }).ToList();
+        return (trips, place?.Name ?? service!.Name);
     }
 
     #endregion

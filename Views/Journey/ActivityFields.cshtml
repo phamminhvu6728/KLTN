@@ -1,7 +1,23 @@
 @model ActivityEditor
+@using TuTuc.Services
 @{
     var x = Model.Input;
     var source = x.SourceType == "Manual" ? "Manual" : x.SourceType + ":" + x.SourceId;
+    var dest = Model.Trip.Destination;
+
+    // Mã các địa điểm mà một dịch vụ phục vụ (DestinationFilter.ServesPlace); JS dùng để lọc ô thứ hai.
+    string PlacesOf(TravelService s) =>
+        string.Join(",", Model.Places.Where(p => DestinationFilter.ServesPlace(s, p, dest)).Select(p => p.Id));
+
+    // Khi sửa hoạt động cũ: ô địa điểm chọn sẵn đúng nơi của nguồn đang dùng.
+    int? selectedPlace = null;
+    if (x.SourceType == "Place")
+        selectedPlace = x.SourceId;
+    else if (x.SourceType == "Service" && Model.Services.FirstOrDefault(s => s.Id == x.SourceId) is { } chosen)
+        selectedPlace = Model.Places
+            .Where(p => DestinationFilter.ServesPlace(chosen, p, dest))
+            .OrderByDescending(p => string.Equals(p.Name.Trim(), chosen.Location.Trim(), StringComparison.OrdinalIgnoreCase))
+            .Select(p => (int?)p.Id).FirstOrDefault();
 }
 
 <form asp-action="Activity" method="post" class="activity-form" data-testid="activity-form-@x.Id">
@@ -10,24 +26,45 @@
     <input type="hidden" name="TripId" value="@Model.Trip.Id" />
     <input type="hidden" name="Version" value="@x.Version" />
 
-    <label>
-        Chọn mục tham khảo hoặc tự nhập
-        <select name="SourceSelection">
-            <option value="Manual" selected="@(source == "Manual")">Tự nhập hoạt động</option>
-            <optgroup label="Địa điểm">
+    @* Hai bước: chọn địa điểm (đã lọc theo điểm đến ở JourneyManager.Detail), rồi chọn hoạt động/dịch vụ của địa điểm đó.
+       Ô 1 không có name nên không gửi lên server; server chỉ nhận SourceSelection ở ô 2 như trước. *@
+    <div class="form-grid">
+        <label>
+            1. Địa điểm tại @dest
+            <select data-place-filter>
+                <option value="">Chưa chọn / tự nhập</option>
                 @foreach (var place in Model.Places)
                 {
-                    <option value="Place:@place.Id" selected="@(source == "Place:" + place.Id)">@place.Name</option>
+                    <option value="@place.Id" selected="@(selectedPlace == place.Id)">@place.Name</option>
                 }
-            </optgroup>
-            <optgroup label="Dịch vụ đã công bố">
-                @foreach (var service in Model.Services)
+            </select>
+        </label>
+        <label>
+            2. Hoạt động hoặc dịch vụ
+            <select name="SourceSelection">
+                <option value="Manual" selected="@(source == "Manual")">Tự nhập hoạt động</option>
+                <optgroup label="Tham quan">
+                    @foreach (var place in Model.Places)
+                    {
+                        <option value="Place:@place.Id" data-places="@place.Id" selected="@(source == "Place:" + place.Id)">Tham quan @place.Name</option>
+                    }
+                </optgroup>
+                @foreach (var group in Model.Services.GroupBy(s => s.Category).OrderBy(g => g.Key))
                 {
-                    <option value="Service:@service.Id" selected="@(source == "Service:" + service.Id)">@service.Name</option>
+                    <optgroup label="Dịch vụ @group.Key.ToLower()">
+                        @foreach (var service in group)
+                        {
+                            <option value="Service:@service.Id" data-places="@PlacesOf(service)" data-price="@service.Price.ToString("0")" selected="@(source == "Service:" + service.Id)">@service.Name · @service.Price.ToString("N0") đ</option>
+                        }
+                    </optgroup>
                 }
-            </optgroup>
-        </select>
-    </label>
+            </select>
+        </label>
+    </div>
+    @if (!Model.Places.Any() && !Model.Services.Any())
+    {
+        <small class="field-hint">Chưa có địa điểm hay dịch vụ nào tại @dest trong hệ thống, hãy tự nhập hoạt động.</small>
+    }
 
     <label>
         Nội dung hoạt động
