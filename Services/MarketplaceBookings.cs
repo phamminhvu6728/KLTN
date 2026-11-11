@@ -11,7 +11,7 @@ public partial class MarketplaceManager
         var service=await db.Services.FindAsync(terms.Service);
         if(service==null||!service.IsPublished||service.ApprovalStatus!="Đã duyệt")return new(null,"Dịch vụ không còn được công bố, không thể gửi yêu cầu mới.",422,"0701-01");
         if(!await Receives(service))return new(null,"Dịch vụ hiện không tiếp nhận yêu cầu mới.",422,"0701-02");
-        terms.Total=service.Price*terms.People;terms.Version=Convert.ToBase64String(service.Version);
+        terms.Total=MarketplaceManager.EstimateTotal(service,terms);terms.Version=Convert.ToBase64String(service.Version);
         if(terms.Total>1000000000)return new(null,"Tổng dự kiến vượt 1 tỷ đồng. Hãy giảm số lượng hoặc gửi yêu cầu riêng.");
         if(terms.Operation==Guid.Empty)terms.Operation=Guid.NewGuid();
         terms.PreviewToken=CreatePreviewToken(owner,terms);

@@ -1,0 +1,155 @@
+@model TuTuc.Services.OnTripVm
+@using TuTuc.Services
+@{
+    ViewData["Title"] = "Hỗ trợ tại điểm đến";
+    var trip = Model.Trip;
+}
+@* Mục tiêu 4 (IS4): khi đang ở điểm đến và phát sinh nhu cầu mới, khách xử lý ngay tại một màn hình. *@
+<section class="section on-trip">
+    <div class="workspace-heading">
+        <div>
+            <span class="eyebrow">ĐANG Ở ĐIỂM ĐẾN</span>
+            <h1>Hỗ trợ tại điểm đến</h1>
+            <p>Xem lịch hôm nay, tìm nhanh chỗ ăn, phương tiện, chỗ ở hoặc hoạt động ngay tại nơi bạn đang đi.</p>
+        </div>
+        @if (trip != null)
+        {
+            <a class="secondary" href="/Journey/Details/@trip.Id">Mở lịch trình đầy đủ</a>
+        }
+    </div>
+
+    @if (trip == null)
+    {
+        <div class="empty">
+            <h3>Bạn chưa có chuyến đi sắp diễn ra</h3>
+            <p>Tạo kế hoạch trước, trang này sẽ gợi ý theo điểm đến của chuyến đi.</p>
+            <a class="button" href="/Journey#new-trip">Tạo kế hoạch</a>
+        </div>
+    }
+    else
+    {
+        <form method="get" class="toolbar on-trip-picker">
+            <label>
+                Chuyến đi
+                <select name="tripId" onchange="this.form.submit()">
+                    @foreach (var t in Model.Trips)
+                    {
+                        <option value="@t.Id" selected="@(t.Id == trip.Id)">@t.Name · @t.Destination (@t.Start.ToString("dd/MM") – @t.End.ToString("dd/MM"))</option>
+                    }
+                </select>
+            </label>
+            <input type="hidden" name="need" value="@Model.Need" />
+            <noscript><button class="secondary">Xem</button></noscript>
+        </form>
+
+        <div class="on-trip-grid">
+            <aside>
+                <article class="panel">
+                    <span class="eyebrow">@(Model.IsOngoing ? "HÔM NAY" : "NGÀY ĐẦU CHUYẾN ĐI") · @Model.Day.ToString("dd/MM/yyyy")</span>
+                    <h2>@trip.Destination</h2>
+                    @if (!Model.IsOngoing)
+                    {
+                        <p class="muted">Chuyến đi chưa bắt đầu. Đang hiển thị lịch của ngày đầu tiên.</p>
+                    }
+                    @if (Model.TodayActivities.Count == 0)
+                    {
+                        <p class="muted">Chưa có hoạt động nào trong ngày này.</p>
+                    }
+                    else
+                    {
+                        <ol class="day-list">
+                            @foreach (var a in Model.TodayActivities)
+                            {
+                                <li>
+                                    <strong>@a.Start.ToString("HH:mm") – @a.End.ToString("HH:mm")</strong>
+                                    <span>@a.Title</span>
+                                    @if (!string.IsNullOrEmpty(a.Location))
+                                    {
+                                        <small>@a.Location</small>
+                                    }
+                                </li>
+                            }
+                        </ol>
+                    }
+                </article>
+
+                <article class="panel">
+                    <h2>Có vấn đề phát sinh?</h2>
+                    <p class="muted">Điểm đến đóng cửa, trời mưa hay dịch vụ không như thỏa thuận: ghi lại để chọn phương án và theo dõi kết quả.</p>
+                    <a class="button full-width" href="/Journey/Incidents?tripId=@trip.Id">Ghi nhận tình huống</a>
+                    @if (Model.OpenIncidents > 0)
+                    {
+                        <p class="field-hint">Chuyến đi đang có @Model.OpenIncidents tình huống chưa xử lý xong.</p>
+                    }
+                </article>
+            </aside>
+
+            <div>
+                <h2 class="on-trip-question">Bạn đang cần gì?</h2>
+                <nav class="need-tabs" aria-label="Chọn nhu cầu">
+                    <a class="@(Model.Need == "" ? "active" : "")" href="?tripId=@trip.Id">Tất cả</a>
+                    @foreach (var n in OnTripManager.Needs)
+                    {
+                        <a class="@(Model.Need == n ? "active" : "")" href="?tripId=@trip.Id&need=@Uri.EscapeDataString(n)">@n</a>
+                    }
+                </nav>
+
+                @if (Model.Services.Count == 0)
+                {
+                    <div class="empty">
+                        <h3>Chưa có dịch vụ @(Model.Need == "" ? "" : Model.Need.ToLower()) tại @trip.Destination</h3>
+                        <p>Thử chọn nhu cầu khác hoặc tra cứu rộng hơn.</p>
+                        <a class="secondary" href="/Home/Search?Region=@Uri.EscapeDataString(trip.Destination)">Tra cứu tại @trip.Destination</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="near-list">
+                        @foreach (var item in Model.Services)
+                        {
+                            var s = item.Service;
+                            <article class="near-item">
+                                <div>
+                                    <span class="badge-status">@s.Category</span>
+                                    <h3><a href="/Marketplace/Details/@s.Id">@s.Name</a></h3>
+                                    <p class="muted">@s.Location · @s.Price.ToString("N0") đ / @ServiceFormHints.Unit(s.Category)</p>
+                                    @if (!item.CanRequest)
+                                    {
+                                        <p class="field-hint">Không tiếp nhận yêu cầu mới, chỉ xem để tham khảo.</p>
+                                    }
+                                </div>
+                                <div class="near-actions">
+                                    @if (item.CanRequest)
+                                    {
+                                        <a class="button" href="/Marketplace/Details/@s.Id?date=@Model.Day.ToString("yyyy-MM-dd")">Gửi yêu cầu</a>
+                                    }
+                                    <a class="secondary" href="/Journey/Details/@trip.Id?sourceType=Service&sourceId=@s.Id">Thêm vào lịch trình</a>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+
+                @if (Model.Places.Count > 0)
+                {
+                    <h2 class="on-trip-question">Địa điểm gần đó để tham khảo</h2>
+                    <div class="near-list">
+                        @foreach (var p in Model.Places)
+                        {
+                            <article class="near-item">
+                                <div>
+                                    <span class="badge-status">@p.Category</span>
+                                    <h3><a href="/Home/Place/@p.Id">@p.Name</a></h3>
+                                    <p class="muted">@p.Region</p>
+                                </div>
+                                <div class="near-actions">
+                                    <a class="secondary" href="/Journey/Details/@trip.Id?sourceType=Place&sourceId=@p.Id">Thêm vào lịch trình</a>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</section>

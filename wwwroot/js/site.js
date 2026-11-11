@@ -82,8 +82,10 @@
  window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
  document.querySelectorAll('form[data-unit-price]').forEach(form=>{
   const quantity=form.querySelector('[name="People"]'),output=form.querySelector('[data-estimate]');
-  const update=()=>{if(output)output.textContent=new Intl.NumberFormat('vi-VN').format(Number(form.dataset.unitPrice)*Number(quantity?.value||0))+' đ';};
-  quantity?.addEventListener('input',update);update();
+  // Lưu trú (data-per-night): nhân thêm số đêm, giống MarketplaceManager.EstimateTotal ở server.
+  const nights=()=>{const s=form.elements.Date?.value,e=form.elements.EndDate?.value;if(form.dataset.perNight!=='true'||!s||!e)return 1;const d=(new Date(e)-new Date(s))/864e5;return d>0?d:1;};
+  const update=()=>{if(output)output.textContent=new Intl.NumberFormat('vi-VN').format(Number(form.dataset.unitPrice)*Number(quantity?.value||0)*nights())+' đ';};
+  quantity?.addEventListener('input',update);form.addEventListener('change',update);update();
  });
 })();
 // A day shortcut prepares the editor without writing anything to the server.
@@ -122,4 +124,45 @@ document.addEventListener('keydown',event=>{
  const current=tabs.indexOf(tab);
  const index=event.key==='Home'?0:event.key==='End'?tabs.length-1:(current+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
  event.preventDefault();tabs[index].click();tabs[index].focus();
+});
+
+// Form thêm hoạt động: chọn địa điểm (ô 1) trước, ô 2 chỉ hiện hoạt động/dịch vụ của địa điểm đó.
+// Mỗi mục ở ô 2 có data-places = mã các địa điểm nó phục vụ (tính ở server bằng DestinationFilter.ServesPlace).
+function filterActivityOptions(form,pickFirst){
+ const place=form.querySelector('[data-place-filter]');
+ const select=form.elements.SourceSelection;
+ if(!place||!select)return;
+ select.querySelectorAll('option').forEach(option=>{
+  const places=(option.dataset.places||'').split(',');
+  // Luôn giữ "Tự nhập" và mục đang được chọn sẵn khi sửa hoạt động cũ.
+  option.hidden=!(option.value==='Manual'||option.defaultSelected||(place.value!==''&&places.includes(place.value)));
+ });
+ select.querySelectorAll('optgroup').forEach(group=>group.hidden=Array.from(group.children).every(option=>option.hidden));
+ if(pickFirst){
+  const first=Array.from(select.options).find(option=>!option.hidden&&option.value!=='Manual');
+  select.value=first&&place.value!==''?first.value:'Manual';
+  // Điền sẵn ô "Địa điểm / địa chỉ" nếu khách chưa tự gõ.
+  const location=form.elements.Location;
+  if(location&&(location.value===''||location.dataset.auto==='1')){
+   location.value=place.value===''?'':place.options[place.selectedIndex].text;
+   location.dataset.auto='1';
+  }
+  fillActivityCost(form);
+ }
+}
+// Chọn dịch vụ thì điền sẵn chi phí theo giá dịch vụ, nếu khách chưa tự nhập.
+function fillActivityCost(form){
+ const option=form.elements.SourceSelection.selectedOptions[0];
+ const cost=form.elements.Cost;
+ if(!cost||!(cost.value===''||cost.dataset.auto==='1'))return;
+ cost.value=option?.dataset.price||'';
+ cost.dataset.auto=cost.value===''?'':'1';
+}
+document.querySelectorAll('form').forEach(form=>filterActivityOptions(form,false));
+document.addEventListener('change',event=>{
+ const form=event.target.form;
+ if(!form)return;
+ if(event.target.matches('[data-place-filter]'))filterActivityOptions(form,true);
+ else if(event.target.name==='SourceSelection')fillActivityCost(form);
+ else if(event.target.name==='Location'||event.target.name==='Cost')event.target.dataset.auto='';
 });

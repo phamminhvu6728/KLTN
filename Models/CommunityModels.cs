@@ -19,6 +19,8 @@ public class CommunitySearch
 public class DemandCard
 {
  public int Id {get;set;}public string Destination {get;set;}="";public DateTime Date {get;set;}public DateTime EndDate {get;set;}public string TravelStyle {get;set;}="";public string OwnerName {get;set;}="";public string? Description {get;set;}public decimal? Budget {get;set;}public string? Wishes {get;set;}public int? People {get;set;}public string? Bio {get;set;}public string? Residence {get;set;}public string? Interests {get;set;}public string? Email {get;set;}public string? Phone {get;set;}public bool Limited {get;set;}public bool Connected {get;set;}public bool CanConnect {get;set;}public string SharingScope {get;set;}="";
+ // Mục tiêu 3: mức độ phù hợp (%) và lý do, chỉ có khi khách nhập tiêu chí tìm kiếm.
+ public int? MatchScore {get;set;}public List<string> MatchReasons {get;set;}=[];
 }
 public class CommunityPage {public List<DemandCard> Demands {get;set;}=[];public CommunitySearch Search {get;set;}=new();public int Total {get;set;}public int Me {get;set;}public bool IsTraveler {get;set;}}
 public class ConnectionItem {public Connection Connection {get;set;}=new();public Companion Demand {get;set;}=new();public string SenderName {get;set;}="";public string OtherName {get;set;}="";public string? OtherBio {get;set;}public string? OtherEmail {get;set;}public string? OtherPhone {get;set;}public string? OtherResidence {get;set;}public string? OtherInterests {get;set;}public DemandCard? Counterpart {get;set;}public List<CompanionAgreement> Agreements {get;set;}=[];}

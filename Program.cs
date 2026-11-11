@@ -30,6 +30,9 @@ builder.Services.AddScoped<PrivateDocumentStore>();
 builder.Services.AddScoped<VerificationManager>();
 builder.Services.AddScoped<GovernanceManager>();
 builder.Services.AddScoped<TravelSearchManager>();
+// Bổ sung sau A14: đánh giá dịch vụ, gợi ý đồng hành, hỗ trợ tại điểm đến.
+builder.Services.AddScoped<CompanionSuggestion>();
+builder.Services.AddScoped<OnTripManager>();
 builder.Services.AddHostedService<GovernanceReminderService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(o =>
@@ -96,6 +99,10 @@ using (var scope = app.Services.CreateScope())
     DatabaseBootstrap.Initialize(db);
     SeedData.Initialize(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
     SucDataUpgrade.Apply(db, app.Environment, app.Configuration.GetValue<bool>("Demo:Enabled"));
+    // Dữ liệu mẫu bổ sung sau A14 (đánh giá, dịch vụ ăn uống/di chuyển, chuyến đi đang diễn ra).
+    DemoA14Seed.Apply(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
+    // Dữ liệu mẫu đầy đủ cho các điểm đến (địa điểm, nhà cung cấp, dịch vụ, đánh giá, nhu cầu đồng hành).
+    DemoFullDataSeed.Apply(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
 }
 
 if (!app.Environment.IsDevelopment())

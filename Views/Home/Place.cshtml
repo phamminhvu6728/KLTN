@@ -1,4 +1,73 @@
 @model Place
-@{ViewData["Title"]=Model.Name;}
-<section class="section"><a href="/">← Trở lại khám phá</a><div class="detail-grid"><img class="detail-image" src="@Model.Image" alt="Ảnh minh họa @Model.Name"/><div><span class="eyebrow">@Model.Region · @Model.Category</span><h1>@Model.Name</h1><p>@Model.Description</p><h3>@Model.Price.ToString("N0") ₫</h3><p class="muted">Ngân sách gợi ý từ dữ liệu mẫu cho một chuyến đi, không phải báo giá dịch vụ.</p><div class="place-actions"><a class="button" href="/Journey#new-trip">Lập kế hoạch đến đây ↗</a><a class="secondary" href="/Journey/ChooseSource?sourceType=Place&sourceId=@Model.Id">Thêm vào lịch trình</a></div><div class="panel"><h3>Chuẩn bị cho hành trình</h3><p class="muted">Kiểm tra thời tiết và điều kiện di chuyển trước khi đi. Chủ động liên hệ nhà cung cấp để thống nhất các điều kiện dịch vụ.</p><a href="/Marketplace?q=@Model.Name">Tìm dịch vụ tại @Model.Name ↗</a><br/><a href="/Community?q=@Model.Name">Tìm người đồng hành ↗</a></div></div></div></section>
+@using TuTuc.Services
+@{
+    ViewData["Title"] = Model.Name;
+    var services = ViewBag.Services as List<TravelService> ?? [];
+    var nearby = ViewBag.Nearby as List<Place> ?? [];
+}
+@* Mục tiêu 1 (IS1): một trang địa điểm gom cả thông tin, dịch vụ tại chỗ và địa điểm cùng khu vực. *@
+<section class="section">
+    <a href="/Home/Search">← Trở lại tra cứu</a>
+    <div class="detail-grid">
+        <img class="detail-image" src="@Model.Image" alt="Ảnh minh họa @Model.Name" />
+        <div>
+            <span class="eyebrow">@Model.Region · @Model.Category</span>
+            <h1>@Model.Name</h1>
+            <p>@Model.Description</p>
+            <h3>@Model.Price.ToString("N0") ₫</h3>
+            <p class="muted">Ngân sách gợi ý từ dữ liệu mẫu cho một chuyến đi, không phải báo giá dịch vụ.</p>
+            <div class="place-actions">
+                <a class="button" href="/Journey#new-trip">Lập kế hoạch đến đây ↗</a>
+                <a class="secondary" href="/Journey/ChooseSource?sourceType=Place&sourceId=@Model.Id">Thêm vào lịch trình</a>
+            </div>
+            <p class="place-links">
+                <a href="/Community?Q=@Uri.EscapeDataString(Model.Name)">Tìm người cùng đi @Model.Name ↗</a>
+            </p>
+        </div>
+    </div>
 
+    <div class="place-related">
+        <div>
+            <h2>Dịch vụ tại @Model.Name</h2>
+            @if (services.Count == 0)
+            {
+                <p class="muted">Chưa có dịch vụ đã duyệt tại đây.</p>
+            }
+            else
+            {
+                <div class="near-list">
+                    @foreach (var s in services)
+                    {
+                        <article class="near-item">
+                            <div>
+                                <span class="badge-status">@s.Category</span>
+                                <h3><a href="/Marketplace/Details/@s.Id">@s.Name</a></h3>
+                                <p class="muted">@s.Price.ToString("N0") đ / @ServiceFormHints.Unit(s.Category)</p>
+                            </div>
+                            <a class="secondary" href="/Marketplace/Details/@s.Id">Xem</a>
+                        </article>
+                    }
+                </div>
+                <a class="text-link" href="/Marketplace?q=@Uri.EscapeDataString(Model.Name)">Xem tất cả dịch vụ tại @Model.Name →</a>
+            }
+        </div>
+        <aside>
+            <h2>Cùng khu vực @Model.Region</h2>
+            @if (nearby.Count == 0)
+            {
+                <p class="muted">Chưa có địa điểm khác trong khu vực.</p>
+            }
+            @foreach (var p in nearby)
+            {
+                <a class="nearby-place" href="/Home/Place/@p.Id">
+                    <strong>@p.Name</strong>
+                    <small>@p.Category · khoảng @p.Price.ToString("N0") ₫</small>
+                </a>
+            }
+            <div class="panel">
+                <h3>Chuẩn bị cho hành trình</h3>
+                <p class="muted">Kiểm tra thời tiết và điều kiện di chuyển trước khi đi. Chủ động liên hệ nhà cung cấp để thống nhất các điều kiện dịch vụ.</p>
+            </div>
+        </aside>
+    </div>
+</section>

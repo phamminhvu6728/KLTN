@@ -7,7 +7,7 @@ using TuTuc.Services;
 namespace TuTuc.Controllers;
 
 [Authorize(Roles = "Traveler")]
-public class JourneyController(JourneyManager manager) : Controller
+public class JourneyController(JourneyManager manager, OnTripManager onTrip) : Controller
 {
     // Danh tính lấy từ cookie đã xác thực, không nhận chủ kế hoạch từ form.
     int Me => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -54,7 +54,11 @@ public class JourneyController(JourneyManager manager) : Controller
             return BadRequest();
         ViewBag.SourceType = sourceType;
         ViewBag.SourceId = sourceId;
-        return View(await manager.List(Me));
+        var (trips, sourceName) = await manager.TripsForSource(Me, sourceType, sourceId);
+        if (sourceName == "")
+            return NotFound();
+        ViewBag.SourceName = sourceName;
+        return View(trips);
     }
 
     #endregion
@@ -137,6 +141,9 @@ public class JourneyController(JourneyManager manager) : Controller
     #region 3. Tình huống phát sinh
 
     public async Task<IActionResult> Incidents(int? tripId) => View(await manager.Incidents(Me, tripId));
+
+    // Mục tiêu 4: hỗ trợ khi đang ở điểm đến (lịch hôm nay, dịch vụ/địa điểm gần, lối tắt xử lý).
+    public async Task<IActionResult> OnTrip(int? tripId, string? need) => View(await onTrip.Build(Me, tripId, need));
     public async Task<IActionResult> Incident(int id)
     {
         var m = await manager.Incident(Me, id);

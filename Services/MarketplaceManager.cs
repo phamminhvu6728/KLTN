@@ -54,6 +54,13 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
         for(var i=0;i<lines.Length;i++)result.Add(($"option-{i+1}",lines[i]));
         return result;
     }
+    // Tổng tạm tính = đơn giá × số lượng; riêng Lưu trú nhân thêm số đêm (ngày trả phòng − ngày nhận phòng).
+    // Đây vẫn là giá tham khảo, nhà cung cấp có thể đề xuất tổng khác khi phản hồi (SUC07.01).
+    public static decimal EstimateTotal(TravelService service,BookingTermsInput terms)
+    {
+        var nights=service.Category=="Lưu trú"&&terms.EndDate.HasValue&&terms.EndDate.Value.Date>terms.Date.Date?(terms.EndDate.Value.Date-terms.Date.Date).Days:1;
+        return service.Price*terms.People*nights;
+    }
     public static string ValidateTerms(BookingTermsInput terms) => ValidateTerms(terms,Today);
     public static string ValidateTerms(BookingTermsInput terms,DateTime today)
     {

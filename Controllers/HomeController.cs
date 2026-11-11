@@ -26,7 +26,26 @@ public class HomeController(AppDbContext db, TravelSearchManager search) : Contr
     public async Task<IActionResult> Place(int id)
     {
         var place = await db.Places.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
-        return place == null ? NotFound() : View(place);
+        if (place == null) return NotFound();
+        // Mục tiêu 1: gom thông tin liên quan vào một trang để khách không phải tìm lại ở nơi khác.
+        // Dịch vụ "tại nơi này" = dịch vụ có địa điểm phục vụ trùng tên địa điểm này,
+        // hoặc trùng tên một địa điểm khác cùng khu vực (ví dụ Bản Cát Cát và Sa Pa cùng Lào Cai).
+        var regionNames = await db.Places.AsNoTracking().Where(x => x.Region == place.Region).Select(x => x.Name).ToListAsync();
+        regionNames.Add(place.Region);
+        var published = await (from s in db.Services.AsNoTracking()
+                               join p in db.Accounts.AsNoTracking() on s.OwnerId equals p.Id
+                               where s.ApprovalStatus == "Đã duyệt" && s.IsPublished && p.ProviderStatus != "Đã thu hồi"
+                               select s).ToListAsync();
+        bool Matches(string location, string name) =>
+            location.Contains(name, StringComparison.OrdinalIgnoreCase) || name.Contains(location, StringComparison.OrdinalIgnoreCase);
+        var services = published
+            .Where(s => Matches(s.Location, place.Name) || regionNames.Any(n => Matches(s.Location, n)))
+            .OrderByDescending(s => Matches(s.Location, place.Name)).ThenBy(s => s.Category).ThenBy(s => s.Price)
+            .Take(8).ToList();
+        ViewBag.Services = services;
+
+        ViewBag.Nearby = await db.Places.AsNoTracking().Where(x => x.Region == place.Region && x.Id != place.Id).Take(4).ToListAsync();
+        return View(place);
     }
     // Keep old bookmarks working while all writes now use business services.
     public IActionResult Trips() => RedirectToAction("Index", "Journey");
