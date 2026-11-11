@@ -82,8 +82,10 @@
  window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
  document.querySelectorAll('form[data-unit-price]').forEach(form=>{
   const quantity=form.querySelector('[name="People"]'),output=form.querySelector('[data-estimate]');
-  const update=()=>{if(output)output.textContent=new Intl.NumberFormat('vi-VN').format(Number(form.dataset.unitPrice)*Number(quantity?.value||0))+' đ';};
-  quantity?.addEventListener('input',update);update();
+  // Lưu trú (data-per-night): nhân thêm số đêm, giống MarketplaceManager.EstimateTotal ở server.
+  const nights=()=>{const s=form.elements.Date?.value,e=form.elements.EndDate?.value;if(form.dataset.perNight!=='true'||!s||!e)return 1;const d=(new Date(e)-new Date(s))/864e5;return d>0?d:1;};
+  const update=()=>{if(output)output.textContent=new Intl.NumberFormat('vi-VN').format(Number(form.dataset.unitPrice)*Number(quantity?.value||0)*nights())+' đ';};
+  quantity?.addEventListener('input',update);form.addEventListener('change',update);update();
  });
 })();
 // A day shortcut prepares the editor without writing anything to the server.

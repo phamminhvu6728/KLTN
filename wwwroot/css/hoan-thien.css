@@ -1,0 +1,5 @@
+/* Bổ sung sau buổi A14: mức độ phù hợp đồng hành, hỗ trợ tại điểm đến, trang địa điểm.
+   Dùng lại biến màu của interface.css để đồng nhất với các trang có sẵn. */
+
+/* Form gửi yêu cầu: căn đáy các ô để nhãn dài xuống dòng vẫn không làm lệch ô nhập */
+.ui-v2 .market-terms-grid { align-items: end; }
