@@ -30,7 +30,8 @@ const block=[...html.matchAll(/<article[^>]*data-testid="activity-(\d+)"[\s\S]*?
 check((await b.post('/Journey/RemoveActivity',{tripId,id:aid,version:v},'/Journey')).status===404,'stranger cannot delete activity');
 r=await a.post('/Journey/RemoveActivity',{tripId,id:aid,version:v},tripPath);check(r.status===302,'owned unreferenced activity removed');check(!(await a.get(tripPath)).includes('<h3>Hoạt động tạm</h3>'),'deleted activity absent after reload');
 let serviceId,detail;
-const catalog=await a.get('/Marketplace');
+// Lấy dịch vụ ở Đà Lạt: đều thuộc nhà cung cấp demo (ncc@demo.vn) mà kịch bản dùng để phản hồi.
+const catalog=await a.get('/Marketplace?dest='+encodeURIComponent('Đà Lạt'));
 for(const match of catalog.matchAll(/href="\/Marketplace\/Details\/(\d+)"/g)){const page=await a.get('/Marketplace/Details/'+match[1]);if(page.includes('Tiếp tục kiểm tra yêu cầu')){serviceId=match[1];detail=page;break;}}
 check(Boolean(serviceId),'receiving service available for deep booking tests');
 const terms={Service:serviceId,Operation:crypto.randomUUID(),Date:day(7),People:2,Guests:2,Options:'Bữa sáng\nĐón khách',ArrivalDeparture:'08:00',Note:'Focus request '+stamp,Total:0};
