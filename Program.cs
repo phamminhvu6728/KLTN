@@ -96,6 +96,10 @@ using (var scope = app.Services.CreateScope())
     DatabaseBootstrap.Initialize(db);
     SeedData.Initialize(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
     SucDataUpgrade.Apply(db, app.Environment, app.Configuration.GetValue<bool>("Demo:Enabled"));
+    // Dữ liệu mẫu bổ sung sau A14 (dịch vụ ăn uống/di chuyển, chuyến đi đang diễn ra).
+    DemoA14Seed.Apply(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
+    // Dữ liệu mẫu đầy đủ cho các điểm đến (địa điểm, nhà cung cấp, dịch vụ, nhu cầu đồng hành).
+    DemoFullDataSeed.Apply(db, app.Configuration.GetValue<bool>("Demo:Enabled"));
 }
 
 if (!app.Environment.IsDevelopment())
