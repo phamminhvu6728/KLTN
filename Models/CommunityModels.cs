@@ -10,7 +10,7 @@ public class CompanionAgreement
 public class DemandInput
 {
  public int Id {get;set;}[Required(ErrorMessage="Nhập điểm đến."),StringLength(200)]public string Destination {get;set;}="";[Required(ErrorMessage="Nhập nội dung nhu cầu."),StringLength(2000)]public string Description {get;set;}="";
- public DateTime Date {get;set;}=DateTime.Today.AddDays(7);public DateTime EndDate {get;set;}=DateTime.Today.AddDays(9);[Range(0,1000000000)]public decimal Budget {get;set;}[Range(1,20)]public int People {get;set;}=2;public string TravelStyle {get;set;}="Tự túc";[StringLength(1000)]public string? Wishes {get;set;}public string SharingScope {get;set;}="Connected";public bool ShareContact {get;set;}public string Version {get;set;}="";
+ public DateTime Date {get;set;}=DateTime.Today.AddDays(7);public DateTime EndDate {get;set;}=DateTime.Today.AddDays(9);[Range(0,1000000000)]public decimal Budget {get;set;}[Range(1,20)]public int People {get;set;}=2;public string TravelStyle {get;set;}="Tự túc";[StringLength(1000)]public string? Wishes {get;set;}public string SharingScope {get;set;}="Connected";public bool ShareContact {get;set;}public string? Version {get;set;}
 }
 public class CommunitySearch
 {
