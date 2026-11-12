@@ -45,7 +45,7 @@ check((await a.get(requestPath)).includes('975,000'),'4.220 replay does not over
 check((await a.request('/Journey?trang=0')).status===400&&(await a.request('/Marketplace/Requests?trang=0')).status===400,'4.9.1 rejects nonpositive list page numbers');
 page=await a.get(tripPath);version=field(formFor(page,'/Journey/Draft'),'version');
 r=await a.post('/Journey/Draft',{id,version},page);check(r.status===302&&r.location==='/Journey','4.186 saving a draft returns to the owned plan list');
-// 4.222 and SUC08 A2: an unconfirmed counteroffer may be revised by the customer.
+// Bảng 4.212: khi Đề xuất khác, khách chỉ rút hoặc chấp thuận; chỉ sửa trực tiếp khi Chờ phản hồi.
 r=await a.post('/Marketplace/Preview',{...terms,Operation:crypto.randomUUID(),Note:'Design pending revision '+stamp},detail);
 preview=r.html;posted=hidden(formFor(preview,'/Marketplace/Book'));
 r=await a.post('/Marketplace/Book',posted,preview);check(r.status===302,'4.222 creates a separate unconfirmed request for revision');
@@ -56,11 +56,8 @@ check(articleFor(revisionId).length>0&&!articleFor(revisionId).includes('khach@d
 check(articleFor(requestId).includes('khach@demo.vn'),'4.224 mixed provider list still displays contact on its confirmed request');
 page=await provider.get('/Provider/Request/'+revisionId);respond=hidden(formFor(page,'/Provider/Respond'));
 r=await provider.post('/Provider/Respond',{...respond,...terms,Date:day(8),Total:975000,decision:'Đề xuất khác',reason:'Đề nghị đổi lịch'},page);check(r.status===302,'4.222 prepares a counteroffer that remains editable');
-page=await a.get(revisionPath);const oldOffer=hidden(formFor(page,'/Marketplace/ReplyOffer')),edit=hidden(formFor(page,'/Marketplace/EditPending'));
-r=await a.post('/Marketplace/EditPending',{...terms,...edit,Date:day(9),Total:900000,Note:'Khách gửi lại điều kiện'},page);check(r.status===302,'4.222 customer may revise an unconfirmed counteroffer');
-r=await a.post('/Marketplace/ReplyOffer',{...oldOffer,accept:'true'},page);check(r.status===409&&r.errorCode==='0701-05','4.222 obsolete counteroffer cannot be accepted after customer revision');
-page=await provider.get('/Provider/Request/'+revisionId);check(page.includes('Điều kiện phiên bản 3')&&requestStatus(page)==='Chờ phản hồi','4.222 revision increments conditions and awaits provider again');
-respond=hidden(formFor(page,'/Provider/Respond'));r=await provider.post('/Provider/Respond',{...respond,decision:'Đã xác nhận'},page);check(r.status===302&&requestStatus(await a.get(revisionPath))==='Đã xác nhận','4.225 provider can accept the customer revised version');
+page=await a.get(revisionPath);const oldOffer=hidden(formFor(page,'/Marketplace/ReplyOffer'));check(!formFor(page,'/Marketplace/EditPending'),'4.212 counteroffer is not editable, only withdrawn or accepted');
+r=await a.post('/Marketplace/ReplyOffer',{...oldOffer,accept:'true'},page);check(r.status===302&&requestStatus(await a.get(revisionPath))==='Đã xác nhận','4.212 customer accepts the counteroffer instead of editing it');
 for(const [actor,path,marker] of [[a,'/Journey','data-trip-id='],[a,'/Marketplace/Requests','id="request-'],[provider,'/Provider/Requests','id="request-']]){
  r=await actor.request(path+'?trang=2147483647');check(r.status===200&&!r.html.includes(marker),'4.9.1 an out-of-range positive page stays empty without overflow at '+path);
 }
