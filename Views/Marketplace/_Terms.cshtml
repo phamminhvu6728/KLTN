@@ -1,7 +1,7 @@
 @model BookingTermsInput
 @* Nhãn và ví dụ lấy theo loại dịch vụ (ServiceFormHints), không còn ví dụ nhận phòng cho dịch vụ đặt xe hay ăn uống. *@
-@{var showTotal=ViewData["ShowTotal"] as bool? ?? true;var hint=ServiceFormHints.For(ViewData["ServiceCategory"] as string);}
+@{var hint=ServiceFormHints.For(ViewData["ServiceCategory"] as string);}
 <fieldset class="terms-section"><legend>Thời gian và số lượng</legend><div class="market-terms-grid"><label>@hint.DateLabel<input type="date" name="Date" value="@Model.Date.ToString("yyyy-MM-dd")" required/></label><label>@hint.EndDateLabel<input type="date" name="EndDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")"/></label><label>Số người<input type="number" name="Guests" min="1" max="100" value="@Model.Guests" required/></label><label>@hint.QuantityLabel<input type="number" name="People" min="1" max="100" value="@Model.People" required/></label></div></fieldset>
 <label>@hint.TimeLabel<input name="ArrivalDeparture" maxlength="100" value="@Model.ArrivalDeparture" placeholder="@hint.TimeExample"/></label><label>Hạng mục chọn thêm (mỗi dòng một hạng mục, tối đa 10)<textarea name="Options" maxlength="1000" placeholder="@hint.OptionsExample">@Model.Options</textarea></label>
-@if(showTotal){<label>Tổng chi phí điều kiện đang trao đổi (₫)<input type="number" name="Total" min="0" max="1000000000" value="@Model.Total.ToString("0")" required/></label>}
+<label>Chi phí dự kiến (₫, không bắt buộc)<input type="number" name="Total" min="0" max="1000000000" value="@Model.Total?.ToString("0")"/></label>
 <label>Ghi chú riêng<textarea name="Note" maxlength="1000">@Model.Note</textarea></label>

@@ -136,7 +136,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options, IHttpC
                         Notifications.Add(new UserNotification
                         {
                             OwnerId = recipient,
-                            Title = $"Yêu cầu #{booking.Id}: {booking.Status}",
+                            Title = "",
                             Description = string.IsNullOrEmpty(booking.SnapshotName)
                                 ? "Yêu cầu dịch vụ vừa được cập nhật."
                                 : booking.SnapshotName,
@@ -150,26 +150,10 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options, IHttpC
                                 _ => "YeuCauCapNhat"
                             },
                             Url = recipient == providerId
-                                ? "/Provider/Request/" + booking.Id
-                                : "/Marketplace/Request/" + booking.Id
+                                ? "/nha-cung-cap/yeu-cau/" + booking.Id
+                                : "/yeu-cau/" + booking.Id
                         });
-                }
-
-                if (entity is Connection connection)
-                {
-                    var owner = await Companions.Where(x => x.Id == connection.CompanionId).Select(x => x.OwnerId).SingleOrDefaultAsync(token);
-                    foreach (var recipient in new[]
-                    {
-                        owner,
-                        connection.SenderId
-                    }.Where(x => x > 0 && x != actor).Distinct())
-                        Notifications.Add(new UserNotification
-                        {
-                            OwnerId = recipient,
-                            Title = "Đề nghị đồng hành: " + connection.Status,
-                            Description = "Mở khu vực đồng hành để xem và phản hồi.",
-                            Url = "/Community/Dashboard"
-                        });
+                    foreach (var n in Notifications.Local.Where(n => n.Title == "")) n.Title = n.Type;
                 }
 
                 #endregion

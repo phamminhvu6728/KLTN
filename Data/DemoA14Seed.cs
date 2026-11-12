@@ -11,7 +11,7 @@ public static class DemoA14Seed
     const string Marker = "a14-bo-sung-v1";
 
     // Giữ chuyến đi mẫu luôn "đang diễn ra" mỗi lần khởi động: dời cả chuyến và hoạt động
-    // sao cho ngày bắt đầu là hôm qua, nhờ đó demo trang Hỗ trợ tại điểm đến vào ngày nào cũng được.
+    // sao cho ngày bắt đầu là hôm qua, nhờ đó demo lập kế hoạch và tình huống phát sinh vào ngày nào cũng được.
     static void KeepDemoTripOngoing(AppDbContext db)
     {
         var trip = db.Trips.Include(x => x.Activities).FirstOrDefault(x => x.Name == "Đà Lạt cuối tuần (đang đi)");
@@ -46,7 +46,7 @@ public static class DemoA14Seed
         Place("Chợ đêm Đà Lạt", "Lâm Đồng", "Ẩm thực", "Khu ăn uống buổi tối gần hồ Xuân Hương: bánh tráng nướng, sữa đậu nành, đồ len.", "/images/dalat.jpg", 200000);
         Place("Tràng An", "Miền Bắc", "Thiên nhiên", "Đi thuyền qua hang động và núi đá vôi, nên đi buổi sáng để tránh nắng.", "/images/ninhbinh.jpg", 500000);
 
-        // Mục tiêu 4: dịch vụ ăn uống và di chuyển để khách tìm khi có nhu cầu tại điểm đến.
+        // Dịch vụ ăn uống và di chuyển ở Đà Lạt để tra cứu có đủ loại dịch vụ.
         TravelService Service(string name, string category, decimal price, string hours, string description)
         {
             var s = db.Services.FirstOrDefault(x => x.Name == name);
@@ -61,7 +61,7 @@ public static class DemoA14Seed
         Service("Xe đưa đón sân bay Liên Khương", "Di chuyển", 250000, "Theo giờ chuyến bay", "Xe 4–7 chỗ, đón tại sân bay về trung tâm Đà Lạt.");
         db.SaveChanges();
 
-        // Mục tiêu 3: sở thích trong hồ sơ để so mức độ phù hợp khi tìm đồng hành.
+        // Sở thích trong hồ sơ hai khách mẫu (hiện trong phạm vi chia sẻ khi kết nối).
         foreach (var (id, interests) in new[] { (traveler.Id, "Thiên nhiên, Nhiếp ảnh, Cà phê"), (friend.Id, "Nhiếp ảnh, Thiên nhiên, Ẩm thực") })
         {
             var profile = db.UserProfiles.SingleOrDefault(x => x.OwnerId == id);
@@ -88,7 +88,7 @@ public static class DemoA14Seed
         // Lượt dùng của khach@demo.vn đã hoàn thành.
         Done(traveler, homestay, 5);
 
-        // Mục tiêu 4: một chuyến đi đang diễn ra hôm nay để demo trang Hỗ trợ tại điểm đến.
+        // Một chuyến đi đang diễn ra hôm nay để demo ghi nhận tình huống phát sinh.
         db.Trips.Add(new Trip
         {
             OwnerId = traveler.Id, Name = "Đà Lạt cuối tuần (đang đi)", Destination = "Đà Lạt", Start = today.AddDays(-1), End = today.AddDays(1), Budget = 2500000, Status = "Đã chấp nhận",

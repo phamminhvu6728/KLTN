@@ -35,7 +35,7 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
         }
     }
     async Task<string> Save(string message) { await db.SaveChangesAsync(); return message; }
-    void Notify(int owner,string title,string description,string url) => db.Notifications.Add(new UserNotification { OwnerId=owner,Title=title,Description=description,Url=url });
+    void Notify(int owner,string title,string description,string url,string type="") => db.Notifications.Add(new UserNotification { OwnerId=owner,Title=type==""?title:type,Description=description,Url=url,Type=type });
     public static string Snapshot(Booking booking) => JsonSerializer.Serialize(new { booking.SnapshotName, booking.Date, booking.EndDate, booking.Guests, Quantity=booking.People, booking.ArrivalDeparture, booking.Options, booking.Total, booking.Note, booking.ConditionsVersion });
     public static string DescribeSnapshot(string snapshot)
     {
@@ -54,13 +54,6 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
         for(var i=0;i<lines.Length;i++)result.Add(($"option-{i+1}",lines[i]));
         return result;
     }
-    // Tổng tạm tính = đơn giá × số lượng; riêng Lưu trú nhân thêm số đêm (ngày trả phòng − ngày nhận phòng).
-    // Đây vẫn là giá tham khảo, nhà cung cấp có thể đề xuất tổng khác khi phản hồi (SUC07.01).
-    public static decimal EstimateTotal(TravelService service,BookingTermsInput terms)
-    {
-        var nights=service.Category=="Lưu trú"&&terms.EndDate.HasValue&&terms.EndDate.Value.Date>terms.Date.Date?(terms.EndDate.Value.Date-terms.Date.Date).Days:1;
-        return service.Price*terms.People*nights;
-    }
     public static string ValidateTerms(BookingTermsInput terms) => ValidateTerms(terms,Today);
     public static string ValidateTerms(BookingTermsInput terms,DateTime today)
     {
@@ -73,10 +66,10 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
     }
     public static string ValidateService(ServiceEditVm input)
     {
-        if(string.IsNullOrWhiteSpace(input.Name)||string.IsNullOrWhiteSpace(input.Location)||!new[]{"Trải nghiệm","Lưu trú","Di chuyển","Ăn uống"}.Contains(input.Category)||input.Price<0||input.Price>1000000000)return "Tên, loại dịch vụ, địa điểm hoặc đơn giá chưa hợp lệ.";
-        if(Clean(input.Image).Length>0&&SafeImage(input.Image).Length==0)return "Ảnh phải là đường dẫn HTTPS hợp lệ hoặc ảnh nội bộ /images/.";
+        if(string.IsNullOrWhiteSpace(input.Name)||string.IsNullOrWhiteSpace(input.Location)||!new[]{"Trải nghiệm","Lưu trú","Di chuyển","Ăn uống"}.Contains(input.Category)||input.Price<0||input.Price>1000000000)return ThongDiep.Loi("0601-04")+" Tên, loại dịch vụ, địa điểm hoặc đơn giá chưa hợp lệ.";
+        if(Clean(input.Image).Length>0&&SafeImage(input.Image).Length==0)return ThongDiep.Loi("0601-04")+" Ảnh phải là đường dẫn HTTPS hợp lệ hoặc ảnh nội bộ /images/.";
         var hasClosure=input.ClosureStart.HasValue||input.ClosureEnd.HasValue||!string.IsNullOrWhiteSpace(input.ClosureReason)||!string.IsNullOrWhiteSpace(input.ClosureScope);
-        if(hasClosure&&(!input.ClosureStart.HasValue||string.IsNullOrWhiteSpace(input.ClosureReason)||string.IsNullOrWhiteSpace(input.ClosureScope)||input.ClosureEnd?.Date<input.ClosureStart?.Date||input.ClosureEnd?.Date<Today))return "Thông báo tạm ngừng cần ngày bắt đầu, lý do và phạm vi; ngày kết thúc không trước ngày bắt đầu/hôm nay.";
+        if(hasClosure&&(!input.ClosureStart.HasValue||string.IsNullOrWhiteSpace(input.ClosureReason)||string.IsNullOrWhiteSpace(input.ClosureScope)||input.ClosureEnd?.Date<input.ClosureStart?.Date||input.ClosureEnd?.Date<Today))return ThongDiep.Loi("0601-03")+" Cần ngày bắt đầu, lý do và phạm vi; ngày kết thúc không trước ngày bắt đầu và hôm nay.";
         return "";
     }
     static string SafeImage(string? image)
@@ -91,15 +84,15 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
     static string ContentKey(TravelService service)=>JsonSerializer.Serialize(new {service.Name,service.Description,service.Category,service.Location,service.Price,service.Image,service.ServingHours,service.Conditions,service.ClosureStart,service.ClosureEnd,service.ClosureReason,service.ClosureScope});
     public Task<string> SubmitService(int owner,ServiceEditVm input)=>Atomic(async()=>
     {
-        var user=await db.Accounts.FindAsync(owner);if(!ProviderRules.CanPublish(user))return "Chưa có quyền đăng nội dung. Hãy xem hồ sơ xác minh hoặc quyết định quyền hoạt động.";
+        var user=await db.Accounts.FindAsync(owner);if(!ProviderRules.CanPublish(user))return ProviderRules.PublishBlockedMessage(user);
         var invalid=ValidateService(input);if(invalid.Length>0)return invalid;
         var isDraft=input.Operation=="SaveDraft";if(!isDraft&&input.Operation!="Submit")return "Thao tác không hợp lệ.";
         TravelService? service=null;
         if(input.Id>0)
         {
-            service=await db.Services.SingleOrDefaultAsync(x=>x.Id==input.Id&&x.OwnerId==owner);if(service==null)return "Không tìm thấy dịch vụ của bạn.";
-            if(!VersionMatches(db,service,input.Version))return "Phiên bản dịch vụ không hợp lệ. Hãy tải lại.";
-            if(await db.ServiceRevisions.AnyAsync(x=>x.TravelServiceId==service.Id&&x.Status=="Chờ duyệt"))return "Đã có một phiên bản chờ duyệt, chưa thể gửi thêm.";
+            service=await db.Services.SingleOrDefaultAsync(x=>x.Id==input.Id&&x.OwnerId==owner);if(service==null)return ThongDiep.Loi("0601-02");
+            if(!VersionMatches(db,service,input.Version))return ThongDiep.Loi("0601-07");
+            if(await db.ServiceRevisions.AnyAsync(x=>x.TravelServiceId==service.Id&&x.Status=="Chờ duyệt"))return ThongDiep.Loi("0601-05");
             if(isDraft&&service.ApprovalStatus!="Nháp")return "Chỉ lưu nháp trực tiếp cho dịch vụ chưa gửi đăng; nội dung đã gửi cần tạo bản cập nhật.";
         }
         if(service==null){service=new TravelService{OwnerId=owner,ApprovalStatus=isDraft?"Nháp":"Chờ duyệt"};CopyContent(service,input);db.Services.Add(service);}
@@ -107,7 +100,7 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
         else
         {
             var compare=new TravelService();CopyContent(compare,input);
-            if(ContentKey(service)==ContentKey(compare))return "Nội dung chưa có thay đổi so với bản hiện tại.";
+            if(ContentKey(service)==ContentKey(compare))return ThongDiep.Loi("0601-06");
         }
         if(isDraft)return await Save("Đã lưu nháp. Dịch vụ chưa chuyển xét duyệt và chưa công bố.");
         var number=service.Id==0?1:(await db.ServiceRevisions.Where(x=>x.TravelServiceId==service.Id).MaxAsync(x=>(int?)x.RevisionNumber)??0)+1;
@@ -121,13 +114,13 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
     {
         if(!await db.Accounts.AnyAsync(x=>x.Id==admin&&x.Role=="Admin"&&x.IsActive))return "Không có quyền quản trị.";
         var revision=await db.ServiceRevisions.Include(x=>x.TravelService).SingleOrDefaultAsync(x=>x.Id==id);
-        if(revision==null||revision.Status!="Chờ duyệt"||await db.ServiceRevisions.AnyAsync(x=>x.TravelServiceId==revision.TravelServiceId&&x.RevisionNumber>revision.RevisionNumber))return "Phiên bản đã được xử lý hoặc có phiên bản mới hơn.";
-        if(!VersionMatches(db,revision,version))return "Phiên bản không hợp lệ.";
+        if(revision==null||revision.Status!="Chờ duyệt"||await db.ServiceRevisions.AnyAsync(x=>x.TravelServiceId==revision.TravelServiceId&&x.RevisionNumber>revision.RevisionNumber))return ThongDiep.Loi("0602-03");
+        if(!VersionMatches(db,revision,version))return ThongDiep.Loi("0602-03");
         if(Clean(note).Length>500)return "Nhận xét xét duyệt không quá 500 ký tự.";
         if(!new[]{"Đã duyệt","Từ chối","Cần sửa"}.Contains(decision))return "Quyết định không hợp lệ.";
-        if(decision!="Đã duyệt"&&string.IsNullOrWhiteSpace(note))return "Phải ghi lý do từ chối hoặc nội dung cần sửa.";
+        if(decision!="Đã duyệt"&&string.IsNullOrWhiteSpace(note))return ThongDiep.Loi("0602-02");
         var service=revision.TravelService!;var owner=await db.Accounts.FindAsync(service.OwnerId);
-        if(decision=="Đã duyệt"&&!ProviderRules.CanPublish(owner))return "Nhà cung cấp không đủ quyền hoạt động; chỉ có thể từ chối hoặc yêu cầu sửa.";
+        if(decision=="Đã duyệt"&&!ProviderRules.CanPublish(owner))return ThongDiep.Loi("0602-04");
         revision.Status=decision;revision.ReviewNote=Clean(note);revision.ReviewedById=admin;revision.ReviewedAt=DateTime.UtcNow;
         if(decision=="Đã duyệt")
         {
@@ -136,7 +129,7 @@ public partial class MarketplaceManager(AppDbContext db, IDataProtectionProvider
             if(!service.IsAccepting&&service.BlockedByDecisionId.HasValue&&owner?.CurrentGovernanceDecisionId==null){service.IsAccepting=true;service.BlockedByDecisionId=null;}
         }
         else if(service.PublishedRevisionNumber==null&&service.ApprovalStatus!="Đã duyệt")service.ApprovalStatus=decision;
-        Notify(service.OwnerId,"Phiên bản dịch vụ: "+decision,revision.Name+". "+revision.ReviewNote,"/Provider");
+        Notify(service.OwnerId,"Phiên bản dịch vụ: "+decision,revision.Name+". "+revision.ReviewNote,"/nha-cung-cap/dich-vu/"+service.Id,decision switch{"Đã duyệt"=>"DichVuDaDuyet","Từ chối"=>"DichVuBiTuChoi",_=>"DichVuCanSua"});
         return await Save("Đã ghi quyết định cho đúng phiên bản nội dung.");
     });
 }

@@ -51,7 +51,7 @@ public class BookingChange
     public int People { get; set; }
     public string ArrivalDeparture { get; set; } = "";
     public string Options { get; set; } = "";
-    public decimal Total { get; set; }
+    public decimal? Total { get; set; }
     public string Reason { get; set; } = "";
     public string DecisionReason { get; set; } = "";
     public string ProviderOfferReason { get; set; } = "";
@@ -120,7 +120,7 @@ public class BookingTermsInput
     [MaxLength(100)] public string? ArrivalDeparture { get; set; }
     [MaxLength(1000)] public string? Options { get; set; }
     [MaxLength(1000)] public string? Note { get; set; }
-    [Range(0,1000000000)] public decimal Total { get; set; }
+    [Range(0,1000000000)] public decimal? Total { get; set; }
     public int ConditionsVersion { get; set; }
     public string? Version { get; set; }
     public string? Reason { get; set; }

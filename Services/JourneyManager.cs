@@ -373,13 +373,13 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
     {
         if (!await CanWrite(user))
             return Failure("Bạn không có quyền ghi nhận tình huống.", 403);
-        if (!IncidentCategories.Contains(input.Category) || string.IsNullOrWhiteSpace(input.Description) || input.Description.Length > 2000)
-            return Failure("Chọn loại và nhập mô tả tình huống tối đa 2000 ký tự.");
         if (!await db.Trips.AnyAsync(x => x.Id == input.TripId && x.OwnerId == user))
-            return Failure("Phải chọn một chuyến đi của bạn.", 404);
+            return Fault("0501-01");
+        if (!IncidentCategories.Contains(input.Category) || string.IsNullOrWhiteSpace(input.Description) || input.Description.Length > 2000)
+            return Fault("0501-02");
         var ids = input.ActivityIds.Distinct().ToList();
         if (await db.Activities.CountAsync(x => ids.Contains(x.Id) && x.TripId == input.TripId) != ids.Count)
-            return Failure("Có hoạt động được chọn không thuộc chuyến đi này.");
+            return Fault("0501-03");
         await using var tx = await db.Database.BeginTransactionAsync();
         var incident = new Incident
         {
@@ -403,20 +403,24 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
     {
         if (!await CanWrite(user))
             return Failure("Bạn không có quyền cập nhật tình huống.", 403, input.Id);
-        if (string.IsNullOrWhiteSpace(input.Content) || input.Content.Length > 1000)
-            return Failure("Nhập phương án tối đa 1000 ký tự.", 400, input.Id);
         await using var tx = await db.Database.BeginTransactionAsync();
         var i = await OwnIncident(user, input.Id);
         if (i == null)
-            return Failure("Không tìm thấy tình huống.", 404, input.Id);
+            return Fault("0501-01", input.Id);
         if (IsClosed(i))
-            return Failure("Tình huống đã kết thúc, chỉ có thể xem lịch sử.", 422, input.Id);
+            return Fault("0501-04", input.Id);
         if (!Version(i, input.Version))
-            return Failure("Tình huống vừa thay đổi, hãy tải lại.", 409, input.Id);
+            return Fault("0501-05", input.Id);
+        if (string.IsNullOrWhiteSpace(input.Content) || input.Content.Length > 1000)
+            return Failure("Nhập phương án tối đa 1000 ký tự.", 400, input.Id, "0501-02");
+        // XL2: chỉ khi có phương án hiện hành mới cập nhật và lưu trước khi thêm phương án mới.
         var old = await db.IncidentPlans.Where(x => x.IncidentId == i.Id && x.IsCurrent).ToListAsync();
-        foreach (var p in old)
-            p.IsCurrent = false;
-        await db.SaveChangesAsync();
+        if (old.Count > 0)
+        {
+            foreach (var p in old)
+                p.IsCurrent = false;
+            await db.SaveChangesAsync();
+        }
         db.IncidentPlans.Add(new() { IncidentId = i.Id, Content = input.Content.Trim() });
         i.Plan = input.Content.Trim();
         i.Status = "Đã chọn phương án";
@@ -429,7 +433,7 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
         }
         catch (DbUpdateConcurrencyException)
         {
-            return Failure("Tình huống vừa được cập nhật. Lịch sử trước đó được giữ nguyên.", 409, i.Id);
+            return Fault("0501-05", i.Id);
         }
     }
 
@@ -437,17 +441,17 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
     {
         if (!await CanWrite(user))
             return Failure("Bạn không có quyền cập nhật tình huống.", 403, input.Id);
-        if (!IncidentOutcomes.Contains(input.Outcome) || (input.Resolution ?? "").Length > 2000)
-            return Failure("Chọn kết quả hợp lệ và mô tả tối đa 2000 ký tự.", 400, input.Id);
-        if (input.Outcome is "Đã giải quyết" or "Giải quyết một phần" && string.IsNullOrWhiteSpace(input.Resolution))
-            return Failure("Phải mô tả kết quả thực tế khi đã giải quyết hoặc giải quyết một phần.", 400, input.Id);
         var i = await OwnIncident(user, input.Id);
         if (i == null)
-            return Failure("Không tìm thấy tình huống.", 404, input.Id);
+            return Fault("0501-01", input.Id);
         if (IsClosed(i))
-            return Failure("Tình huống đã kết thúc, chỉ có thể xem.", 422, input.Id);
+            return Fault("0501-04", input.Id);
         if (!Version(i, input.Version))
-            return Failure("Phiên bản tình huống không hợp lệ.", 409, input.Id);
+            return Fault("0501-05", input.Id);
+        if (!IncidentOutcomes.Contains(input.Outcome) || (input.Resolution ?? "").Length > 2000)
+            return Fault("0501-06", input.Id);
+        if (input.Outcome is "Đã giải quyết" or "Giải quyết một phần" && string.IsNullOrWhiteSpace(input.Resolution))
+            return Fault("0501-06", input.Id);
         i.Status = input.Outcome == "Chưa giải quyết" && !string.IsNullOrWhiteSpace(i.Plan) ? "Đã chọn phương án" : input.Outcome;
         i.Resolution = (input.Resolution ?? "").Trim();
         i.UpdatedAt = Clock.UtcNow;
@@ -458,7 +462,7 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
         }
         catch (DbUpdateConcurrencyException)
         {
-            return Failure("Tình huống vừa thay đổi. Kết quả đang nhập được giữ để bạn kiểm tra.", 409, i.Id);
+            return Fault("0501-05", i.Id);
         }
     }
 
@@ -494,6 +498,9 @@ public class JourneyManager(AppDbContext db, IDongHo? clock = null)
             return false;
         }
     }
+
+    // Lỗi nghiệp vụ lấy đúng thông điệp và HTTP trong Bảng 4.250.
+    static JourneyOutcome Fault(string code, int id = 0) => Failure(ThongDiep.Loi(code), ThongDiep.Http(code), id, code);
 
     static JourneyOutcome Failure(string message, int status = 400, int id = 0, string? code = null) =>
         new(false, message, id,

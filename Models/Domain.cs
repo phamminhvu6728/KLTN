@@ -118,7 +118,8 @@ public partial class Booking
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime Date { get; set; }
     public int People { get; set; }
-    public decimal Total { get; set; }
+    // Chi phí dự kiến do khách nhập, không bắt buộc (Bảng 4.139 ChiPhiDuKien).
+    public decimal? Total { get; set; }
     public string Status { get; set; } = "Chờ phản hồi";
 
     [Timestamp]

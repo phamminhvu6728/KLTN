@@ -19,8 +19,6 @@ public class CommunitySearch
 public class DemandCard
 {
  public int Id {get;set;}public string Destination {get;set;}="";public DateTime Date {get;set;}public DateTime EndDate {get;set;}public string TravelStyle {get;set;}="";public string OwnerName {get;set;}="";public string? Description {get;set;}public decimal? Budget {get;set;}public string? Wishes {get;set;}public int? People {get;set;}public string? Bio {get;set;}public string? Residence {get;set;}public string? Interests {get;set;}public string? Email {get;set;}public string? Phone {get;set;}public bool Limited {get;set;}public bool Connected {get;set;}public bool CanConnect {get;set;}public string SharingScope {get;set;}="";
- // Mục tiêu 3: mức độ phù hợp (%) và lý do, chỉ có khi khách nhập tiêu chí tìm kiếm.
- public int? MatchScore {get;set;}public List<string> MatchReasons {get;set;}=[];
 }
 public class CommunityPage {public List<DemandCard> Demands {get;set;}=[];public CommunitySearch Search {get;set;}=new();public int Total {get;set;}public int Me {get;set;}public bool IsTraveler {get;set;}}
 public class ConnectionItem {public Connection Connection {get;set;}=new();public Companion Demand {get;set;}=new();public string SenderName {get;set;}="";public string OtherName {get;set;}="";public string? OtherBio {get;set;}public string? OtherEmail {get;set;}public string? OtherPhone {get;set;}public string? OtherResidence {get;set;}public string? OtherInterests {get;set;}public DemandCard? Counterpart {get;set;}public List<CompanionAgreement> Agreements {get;set;}=[];}
@@ -32,5 +30,5 @@ public class AgreementInput
  public DateTime Start {get;set;}=DateTime.Today.AddDays(7);public DateTime End {get;set;}=DateTime.Today.AddDays(9);[Required(ErrorMessage="Nhập nơi đến."),StringLength(200)]public string Destination {get;set;}="";[Range(0,1000000000)]public decimal? Budget {get;set;}[Required(ErrorMessage="Nhập cách chia chi phí."),StringLength(1000)]public string CostSharing {get;set;}="";[Required(ErrorMessage="Nhập phạm vi đi cùng."),StringLength(1000)]public string Scope {get;set;}="";[StringLength(2000)]public string? Content {get;set;}
 }
 public class AgreementPage {public ConnectionItem Item {get;set;}=new();public AgreementInput Draft {get;set;}=new();}
-public record CommunityOutcome(bool Success,string Message,int Id=0,int StatusCode=400);
+public record CommunityOutcome(bool Success,string Message,int Id=0,int StatusCode=400,string Code="");
 

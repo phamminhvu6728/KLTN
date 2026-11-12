@@ -63,7 +63,7 @@
     </div>
     @if (!Model.Places.Any() && !Model.Services.Any())
     {
-        <small class="field-hint">Chưa có địa điểm hay dịch vụ nào tại @dest trong hệ thống, hãy tự nhập hoạt động.</small>
+        <small class="field-hint">Chưa có gợi ý tại @dest, hãy tự nhập hoạt động.</small>
     }
 
     <label>
@@ -96,12 +96,12 @@
             @if (x.Id == 0)
             {
                 <input type="text" value="Tự xếp cuối ngày" readonly aria-describedby="activity-order-help-0" />
-                <small id="activity-order-help-0" class="field-hint">Thêm xong, mở Chỉnh sửa hoạt động để đổi thứ tự.</small>
+                
             }
             else
             {
                 <input name="SortOrder" type="number" min="1" value="@Math.Max(1, x.SortOrder)" required />
-                <small class="field-hint">Số nhỏ được xếp trước trong cùng ngày.</small>
+                
             }
         </label>
     </div>

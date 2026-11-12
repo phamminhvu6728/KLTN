@@ -17,7 +17,7 @@ public class DashboardController(AppDbContext db) : Controller
         var requests = await db.Bookings.AsNoTracking().Include(x=>x.TravelService).Where(x=>x.OwnerId==Me).OrderByDescending(x=>x.Id).ToListAsync();
         var today=TuTuc.Services.JourneyRules.Today;
         if(tripId.HasValue&&!trips.Any(x=>x.Id==tripId.Value))return NotFound();
-        // Chuyến hiện trên Tổng quan: ưu tiên chuyến đang diễn ra có nhiều hoạt động hôm nay nhất (giống OnTripManager), rồi chuyến sắp tới gần nhất.
+        // Chuyến hiện trên Tổng quan: ưu tiên chuyến đang diễn ra có nhiều hoạt động hôm nay nhất, rồi chuyến sắp tới gần nhất.
         var activeTrip=tripId.HasValue?trips.Single(x=>x.Id==tripId.Value):trips.Where(x=>x.End.Date>=today).OrderByDescending(x=>x.Start.Date<=today).ThenByDescending(x=>x.Activities.Count(a=>a.Start.Date==today)).ThenBy(x=>x.Start).FirstOrDefault()??trips.OrderByDescending(x=>x.UpdatedAt).FirstOrDefault();
         return View(new DashboardVm { ActiveTrip=activeTrip, TripChoices=trips.OrderByDescending(x=>x.UpdatedAt).ToList(), Trips=trips.OrderByDescending(x=>x.UpdatedAt).Take(3).ToList(), TripCount=trips.Count, Bookings=requests.Take(4).ToList(), RequestCount=requests.Count,
             PendingCount=requests.Count(x=>TuTuc.Services.MarketplaceManager.PendingBookingStates.Contains(x.Status)), UnreadCount=await db.Notifications.CountAsync(x=>x.OwnerId==Me&&!x.IsRead),

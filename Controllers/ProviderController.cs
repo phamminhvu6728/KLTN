@@ -17,8 +17,8 @@ public class ProviderController(AppDbContext db,MarketplaceManager manager):Cont
     }
     public async Task<IActionResult> Edit(int? id)
     {
-        if(!ProviderRules.CanPublish(await db.Accounts.FindAsync(Me))){TempData["Message"]="Chưa có quyền gửi đăng/cập nhật dịch vụ. Hãy xem hồ sơ xác minh hoặc quyết định quyền hoạt động.";return RedirectToAction(nameof(Index));}
-        if(id==null)return View(new ServiceEditVm());var s=await db.Services.SingleOrDefaultAsync(x=>x.Id==id&&x.OwnerId==Me);if(s==null)return NotFound();
+        var me=await db.Accounts.FindAsync(Me);if(!ProviderRules.CanPublish(me)){TempData["Message"]=ProviderRules.PublishBlockedMessage(me);return RedirectToAction(nameof(Index));}
+        if(id==null)return View(new ServiceEditVm());var s=await db.Services.SingleOrDefaultAsync(x=>x.Id==id&&x.OwnerId==Me);if(s==null){Response.Headers["X-Business-Error"]="0601-02";return NotFound();}
         var latest=await db.ServiceRevisions.Where(x=>x.TravelServiceId==id).OrderByDescending(x=>x.RevisionNumber).FirstOrDefaultAsync();
         if(latest?.Status=="Chờ duyệt"){TempData["Message"]="Dịch vụ đang có một phiên bản chờ duyệt.";return RedirectToAction(nameof(Index));}
         ViewBag.ReviewNote=latest?.ReviewNote;

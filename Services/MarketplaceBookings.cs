@@ -11,8 +11,7 @@ public partial class MarketplaceManager
         var service=await db.Services.FindAsync(terms.Service);
         if(service==null||!service.IsPublished||service.ApprovalStatus!="Đã duyệt")return new(null,"Dịch vụ không còn được công bố, không thể gửi yêu cầu mới.",422,"0701-01");
         if(!await Receives(service))return new(null,"Dịch vụ hiện không tiếp nhận yêu cầu mới.",422,"0701-02");
-        terms.Total=MarketplaceManager.EstimateTotal(service,terms);terms.Version=Convert.ToBase64String(service.Version);
-        if(terms.Total>1000000000)return new(null,"Tổng dự kiến vượt 1 tỷ đồng. Hãy giảm số lượng hoặc gửi yêu cầu riêng.");
+        terms.Version=Convert.ToBase64String(service.Version);
         if(terms.Operation==Guid.Empty)terms.Operation=Guid.NewGuid();
         terms.PreviewToken=CreatePreviewToken(owner,terms);
         var warnings=new List<string>{"Gửi yêu cầu không bảo đảm còn chỗ. Chỉ thỏa thuận cùng điều kiện được xác nhận mới có hiệu lực."};
@@ -26,8 +25,8 @@ public partial class MarketplaceManager
         if(await db.Bookings.AnyAsync(x=>x.OperationId==terms.Operation&&x.OwnerId==owner))return "Đã ghi nhận lượt gửi này trước đó; không tạo yêu cầu trùng.";
         var reviewed=ReadPreview(owner,terms.PreviewToken);
         if(reviewed==null||PreviewFingerprint(reviewed)!=PreviewFingerprint(terms))throw new BusinessFault("0701-05",409,"Nội dung xác nhận không hợp lệ, đã thay đổi hoặc hết hạn. Hãy xem trước lại yêu cầu.");
-        var expectedVersion=terms.Version;var expectedTotal=terms.Total;var checkedTerms=await Preview(owner,terms);if(checkedTerms.Preview==null)throw new BusinessFault(checkedTerms.Code,checkedTerms.StatusCode,checkedTerms.Error);
-        var service=checkedTerms.Preview.Service;if(expectedVersion!=Convert.ToBase64String(service.Version)||expectedTotal!=service.Price*terms.People)throw new BusinessFault("0701-05",409,"Thông tin dịch vụ hoặc giá đã thay đổi. Hãy kiểm tra lại trước khi xác nhận gửi.");
+        var expectedVersion=terms.Version;var checkedTerms=await Preview(owner,terms);if(checkedTerms.Preview==null)throw new BusinessFault(checkedTerms.Code,checkedTerms.StatusCode,checkedTerms.Error);
+        var service=checkedTerms.Preview.Service;if(expectedVersion!=Convert.ToBase64String(service.Version))throw new BusinessFault("0701-05",409,"Thông tin dịch vụ hoặc giá đã thay đổi. Hãy kiểm tra lại trước khi xác nhận gửi.");
         if(service.OwnerId==owner)throw new BusinessFault("0701-02",422,"Không thể gửi yêu cầu cho dịch vụ của chính mình.");
         var booking=new Booking{OwnerId=owner,TravelServiceId=service.Id,SnapshotName=service.Name,Date=terms.Date.Date,EndDate=terms.EndDate?.Date,People=terms.People,Guests=terms.Guests,ArrivalDeparture=Clean(terms.ArrivalDeparture),Options=Clean(terms.Options),Total=service.Price*terms.People,Note=Clean(terms.Note),OperationId=terms.Operation,Status="Chờ phản hồi",ConditionsVersion=1,CustomerAcceptedVersion=1,CreatedAt=Clock.UtcNow};
         db.Bookings.Add(booking);Capture(booking,owner,"Khách xác nhận gửi yêu cầu phiên bản 1");
@@ -94,7 +93,7 @@ public partial class MarketplaceManager
     {
         var booking=await db.Bookings.SingleOrDefaultAsync(x=>x.Id==id&&x.OwnerId==owner);
         if(booking==null)throw new BusinessFault("0801-01",404,"Không tìm thấy yêu cầu.");
-        if(!new[]{"Chờ phản hồi","Chờ xác nhận","Đề xuất khác"}.Contains(booking.Status))throw new BusinessFault("0801-02",422,"Chỉ sửa trực tiếp yêu cầu chưa xác nhận đang chờ phản hồi hoặc có đề xuất khác.");
+        if(!new[]{"Chờ phản hồi","Chờ xác nhận"}.Contains(booking.Status))throw new BusinessFault("0801-02",422,ThongDiep.DanhMuc["0801-02"].NoiDung);
         if(booking.ConditionsVersion!=terms.ConditionsVersion||!VersionMatches(db,booking,terms.Version))throw new BusinessFault("0801-03",409,"Yêu cầu vừa được cập nhật. Hãy tải lại.");
         var invalid=ValidateTerms(terms,Clock.Today);if(invalid.Length>0)throw new BusinessFault("0701-03",400,invalid);
         var service=await db.Services.FindAsync(booking.TravelServiceId);

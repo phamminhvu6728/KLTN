@@ -15,7 +15,7 @@
             <h1>@Model.Name</h1>
             <p>@Model.Description</p>
             <h3>@Model.Price.ToString("N0") ₫</h3>
-            <p class="muted">Ngân sách gợi ý từ dữ liệu mẫu cho một chuyến đi, không phải báo giá dịch vụ.</p>
+            <p class="muted">Ngân sách gợi ý cho một chuyến đi.</p>
             <div class="place-actions">
                 <a class="button" href="/Journey#new-trip">Lập kế hoạch đến đây ↗</a>
                 <a class="secondary" href="/Journey/ChooseSource?sourceType=Place&sourceId=@Model.Id">Thêm vào lịch trình</a>
@@ -66,7 +66,7 @@
             }
             <div class="panel">
                 <h3>Chuẩn bị cho hành trình</h3>
-                <p class="muted">Kiểm tra thời tiết và điều kiện di chuyển trước khi đi. Chủ động liên hệ nhà cung cấp để thống nhất các điều kiện dịch vụ.</p>
+                
             </div>
         </aside>
     </div>

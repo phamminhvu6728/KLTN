@@ -213,7 +213,7 @@ namespace TuTuc.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Total")
+                    b.Property<decimal?>("Total")
                         .HasPrecision(18)
                         .HasColumnType("decimal(18,0)");
 
@@ -308,7 +308,7 @@ namespace TuTuc.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Total")
+                    b.Property<decimal?>("Total")
                         .HasPrecision(18)
                         .HasColumnType("decimal(18,0)");
 
