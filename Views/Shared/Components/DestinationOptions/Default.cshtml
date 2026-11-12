@@ -1,8 +1,0 @@
-@model List<Place>
-@* Ô nhập vẫn cho gõ tự do; datalist chỉ gợi ý tên địa điểm có sẵn, kèm khu vực. *@
-<datalist id="destination-options">
-    @foreach (var p in Model.DistinctBy(x => x.Name))
-    {
-        <option value="@p.Name" label="@p.Region"></option>
-    }
-</datalist>

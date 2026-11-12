@@ -54,11 +54,7 @@ public class JourneyController(JourneyManager manager) : Controller
             return BadRequest();
         ViewBag.SourceType = sourceType;
         ViewBag.SourceId = sourceId;
-        var (trips, sourceName) = await manager.TripsForSource(Me, sourceType, sourceId);
-        if (sourceName == "")
-            return NotFound();
-        ViewBag.SourceName = sourceName;
-        return View(trips);
+        return View(await manager.List(Me));
     }
 
     #endregion
